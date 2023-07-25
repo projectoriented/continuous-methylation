@@ -7,7 +7,8 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
 ## Getting started
 1. Clone the repo
 2. Install Snakemake version >= 7.6.0
-3. Start the analysis!
+3. Fill in the config and manifests.
+4. Start the analysis!
     * Begin with a dry-run
     ```
     ./runlocal 10 -np
@@ -18,7 +19,7 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
     ```
 
 ## Overview
-![pipeline vector](https://github.com/projectoriented/anomaly/blob/main/agg-dag.svg)
+![pipeline vector](https://github.com/projectoriented/continuous-methylation/blob/main/agg-dag.svg)
 
 ## FAQ
 1. What if I want to change the version of certain tools?
