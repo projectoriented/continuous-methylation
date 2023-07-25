@@ -1,0 +1,28 @@
+import os
+
+master_snakefile_prefix = os.path.dirname(os.path.dirname(workflow.snakefile))
+
+# -------- Config files -------- #
+configfile: master_snakefile_prefix + "/config/resources.yaml"
+configfile: master_snakefile_prefix + "/config/tools.yaml"
+configfile: master_snakefile_prefix + "/config/config.yaml"
+
+if os.path.exists("config/config.yaml"):
+    configfile: "config/config.yaml"
+
+# --------- Load Rules --------- #
+include: "rules/constants.smk"
+include: "rules/common.smk"
+include: "rules/modkit.smk"
+include: "rules/trio.smk"
+include: "rules/non_trio.smk"
+include: "rules/differential_methylation.smk"
+
+# ----------- Target ----------- #
+rule all:
+    input: get_final_output
+
+# MEI TODO: IMPLEMENT HIFI METHYLATION WHEN YOU KNOW HOW REVIO EMITS THE MD TAGS.
+
+onsuccess:
+    shell("find . -type d -name '0-kmers' | xargs rm -rf")
