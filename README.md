@@ -17,7 +17,12 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
     ```
     ./runlocal 10
     ```
-   
+
+## To-do
+- [ ] Put in CI tests
+- [ ] Add conda enviroments
+- [ ] Build bare-bone container to get minimal example running
+
 ## FAQ
 1. What if I want to change the version of certain tools?
    1. You could change the defaults in the tools.yaml config, and if you want to change the resources needed for certain steps- then please edit the resources.yaml
