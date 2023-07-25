@@ -57,7 +57,7 @@ elif config["tech"] == "hifi":
         input:
             parental_illumina=get_yak_input,
         output:
-            parental_yak="results/hifi/yak/parents/{family}/{parental}.yak",
+            parental_yak=temp("results/hifi/yak/parents/{family}/{parental}.yak"),
         threads: config["assembly"]["yak"]["threads"]
         resources:
             mem=lambda wildcards, attempt: attempt * config["assembly"]["yak"]["mem"],
