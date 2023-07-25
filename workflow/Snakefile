@@ -22,7 +22,5 @@ include: "rules/differential_methylation.smk"
 rule all:
     input: get_final_output
 
-# MEI TODO: IMPLEMENT HIFI METHYLATION WHEN YOU KNOW HOW REVIO EMITS THE MD TAGS.
-
 onsuccess:
     shell("find . -type d -name '0-kmers' | xargs rm -rf")
