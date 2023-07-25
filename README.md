@@ -17,10 +17,7 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
     ```
     ./runlocal 10
     ```
-
-## Overview
-![pipeline vector](https://github.com/projectoriented/continuous-methylation/blob/main/agg-dag.svg)
-
+   
 ## FAQ
 1. What if I want to change the version of certain tools?
    1. You could change the defaults in the tools.yaml config, and if you want to change the resources needed for certain steps- then please edit the resources.yaml
@@ -46,3 +43,6 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
    1. Answer coming soon. I'm going to build a barebone container that is enough to run the pipeline, as well as adding a conda statement for all the rules so it can be fine tuned on the versioning.
 4. What is an example config and manifest?
    1. Answer coming soon.
+
+## Overview
+![pipeline vector](https://github.com/projectoriented/continuous-methylation/blob/main/agg-dag.svg)
