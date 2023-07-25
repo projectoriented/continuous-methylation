@@ -1,0 +1,48 @@
+minimap2:
+  version: "2.24"
+
+sambamba:
+  version: "0.7.1"
+
+seqtk:
+  version: "1.4"
+
+canu:
+  version: "2.1.1"
+
+yak:
+  version: "0.1"
+
+hifiasm:
+  version: "0.16.1"
+
+methylink:
+  version: "0.4.0"
+
+modkit:
+  version: "0.1.7"
+
+samtools:
+  version: "1.14"
+
+bcftools:
+  version: "1.17"
+
+bedtools:
+  version: "2.29.2"
+
+sniffles:
+  version: "2.0.7"
+  trf: True
+
+clair3:
+  guppy_model: "r941_prom_sup_g5014"
+  version: "1.0.2"
+  container: "/path/to/containers/clair3/1.0.2/clair3_v1.0.2.sif"
+
+longphase:
+  version: "1.5"
+
+dss:
+  version: "2.46.0"
+  container: "/path/to/containers/R/DSS/2.46.0/bioconductor-dss_2.46.0--r42hc0cfd56_0.sif"

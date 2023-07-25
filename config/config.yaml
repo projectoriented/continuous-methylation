@@ -1,0 +1,26 @@
+tech: "ont" # ont or hifi
+
+reference:
+  GRCh38: ""
+  CHM13v2_0: ""
+  GRCh38-noY: ""
+
+resources:
+  GRCh38:
+    trf: ""
+
+manifest: "config/manifest.tab"
+
+# Differential methylation mode only tested and written for autism cohort
+differential_methylation: False
+dss_min_mod: 0 # do not recommend changing this from 0
+dss_exclude_regions: "/path/to/low-complexity.bed.gz"
+dss_manifest: "config/dss.tab"
+
+# Annotations mode only for differential_methylation enabled
+annotations:
+  GRCh38:
+    cpg_island: ""
+    sfari: ""
+    genes: ""
+    go_desc: ""

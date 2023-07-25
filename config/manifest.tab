@@ -1,0 +1,5 @@
+sample	maternal_illumina_fofn	paternal_illumina_fofn	reference_path	reference_name	fofn	unmapped_bam_fofn	group_name
+14455_fa				GRCh38	fastq_fofn/14455_fa_fastq.fofn	unmapped_bam_fofn/14455_fa_unmapped_bam.fofn	14455
+14455_mo				GRCh38-noY	fastq_fofn/14455_mo_fastq.fofn	unmapped_bam_fofn/14455_mo_unmapped_bam.fofn	14455
+14455_p1	data/Illumina/WGS/fastq/fofn/14455_mo_KG.fastq.fofn	data/Illumina/WGS/fastq/fofn/14455_fa_KG.fastq.fofn		GRCh38-noY	fastq_fofn/14455_p1_fastq.fofn	unmapped_bam_fofn/14455_p1_unmapped_bam.fofn	14455
+14455_s1	data/Illumina/WGS/fastq/fofn/14455_mo_KG.fastq.fofn	data/Illumina/WGS/fastq/fofn/14455_fa_KG.fastq.fofn		GRCh38	fastq_fofn/14455_s1_fastq.fofn	unmapped_bam_fofn/14455_s1_unmapped_bam.fofn	14455
