@@ -166,7 +166,7 @@ rule correspond_fastq_reads_to_hap:
         phase_type="trio"
     threads: config["default"]["threads"]
     resources:
-        mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
+        mem=lambda wildcards, attempt: attempt * (config["default"]["mem"] * 2),
         hrs=config["default"]["hrs"],
     envmodules:
         "modules",
