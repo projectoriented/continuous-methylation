@@ -175,9 +175,9 @@ def gather_tech_bams(which_one):
         )
         fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.fastq.*")
         if which_one == "hap_specific":
-            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/{{sample}}/{{sample}}_{cell}_{{hap}}_sorted-linked.bam",cell=fofn_df.cell.tolist(), tech=[TECH] * fofn_df.shape[0])
+            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/{{sample}}/{{sample}}_{cell}_{{hap}}_sorted-linked.bam",cell=fofn_df.cell.tolist(), tech=[TECH])
         elif which_one == "not_hap_specific":
-            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/minimap2/{{sample}}/{{sample}}_{cell}_sorted-linked.bam",cell=fofn_df.cell.tolist(), tech=[TECH] * fofn_df.shape[0])
+            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/minimap2/{{sample}}/{{sample}}_{cell}_sorted-linked.bam",cell=fofn_df.cell.tolist(), tech=[TECH])
 
     return inner
 
@@ -194,13 +194,13 @@ def get_by_chrom(wildcards):
         return expand(
             "results/{tech}/{{ref}}/variant_call/sniffles/{{sample}}/{chr}/{{sample}}_sniffles.vcf.gz",
             chr=fai_df.tolist(),
-            tech=[TECH] * fai_df.shape[0],
+            tech=[TECH],
         )
     elif wildcards.caller == "clair3":
         return expand(
             "results/{tech}/{{ref}}/variant_call/clair3/{{sample}}/{chr}/merge_output.vcf.gz",
             chr=fai_df.tolist(),
-            tech=[TECH] * fai_df.shape[0],
+            tech=[TECH],
         )
 
 def get_final_dss_targets():
