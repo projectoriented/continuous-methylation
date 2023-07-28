@@ -153,13 +153,26 @@ def get_tech_files(which_one):
         fofn_df["basename"] = fofn_df.apply(
             lambda row: os.path.basename(row.file_path),axis=1
         )
+        fofn_df["n"] = fofn_df.index
         if which_one == "fofn":
+
             fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.fastq.*")
+
+            # If no duplicates are present in file_path but exists in cell, then add unique identifier to cell
+            if fofn_df["cell"].duplicated().any() and not fofn_df["file_path"].duplicated().any():
+                fofn_df["cell"] = fofn_df.apply(lambda x: f"{x.cell}-{x.n}", axis=1)
+
             fofn_df.set_index(["cell"],inplace=True)
             return fofn_df.at[wildcards.cell, "file_path"]
 
         elif which_one == "unmapped_bam_fofn":
+
             fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.bam.*")
+
+            # If no duplicates are present in file_path but exists in cell, then add unique identifier to cell
+            if fofn_df["cell"].duplicated().any() and not fofn_df["file_path"].duplicated().any():
+                fofn_df["cell"] = fofn_df.apply(lambda x: f"{x.cell}-{x.n}", axis=1)
+
             fofn_df.set_index(["cell"],inplace=True)
             return fofn_df.at[wildcards.cell, "file_path"]
 
@@ -173,7 +186,14 @@ def gather_tech_bams(which_one):
         fofn_df["basename"] = fofn_df.apply(
             lambda row: os.path.basename(row.file_path),axis=1
         )
+        fofn_df["n"] = fofn_df.index
+
         fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.fastq.*")
+
+        # If no duplicates are present in file_path but exists in cell, then add unique identifier to cell
+        if fofn_df["cell"].duplicated().any() and not fofn_df["file_path"].duplicated().any():
+            fofn_df["cell"] = fofn_df.apply(lambda x: f"{x.cell}-{x.n}",axis=1)
+
         if which_one == "hap_specific":
             return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/{{sample}}/{{sample}}_{cell}_{{hap}}_sorted-linked.bam",cell=fofn_df.cell.tolist(), tech=[TECH])
         elif which_one == "not_hap_specific":
