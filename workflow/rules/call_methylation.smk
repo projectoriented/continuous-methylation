@@ -69,6 +69,8 @@ elif TECH == "hifi":
         output:
             methyl_bed_gz = "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.combined.bed.gz",
             methyl_bigwig = "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.combined.bw",
+        wildcard_constraints:
+            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
         threads: config["methylation"]["pb-CpG-tools"]["threads"]
         resources:
             mem=lambda wildcards, attempt: attempt * config["methylation"]["pb-CpG-tools"]["mem"],
