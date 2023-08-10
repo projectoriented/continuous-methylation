@@ -61,14 +61,14 @@ if TECH == "ont":
                 {input.bam} \
                 $outname && gzip $outname
             """
-else:
+elif TECH == "hifi":
     rule call_cpg_hifi:
         input:
-            get_call_cpg_hifi_inputs,
+            unpack(get_call_cpg_hifi_inputs),
             ref=get_reference
         output:
-            methyl_bed_gz = "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bed.gz",
-            methyl_bigwig = "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bw",
+            methyl_bed_gz = "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.combined.bed.gz",
+            methyl_bigwig = "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.combined.bw",
         threads: config["methylation"]["pb-CpG-tools"]["threads"]
         resources:
             mem=lambda wildcards, attempt: attempt * config["methylation"]["pb-CpG-tools"]["mem"],

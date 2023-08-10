@@ -45,7 +45,7 @@ def get_final_output(wildcards):
 def get_call_cpg_hifi_inputs(wildcards):
     if wildcards.phase_type == "trio":
         if "hap" in wildcards.suffix:
-            current_hap = wildcards.suffix.split(".")[0]
+            current_hap = wildcards.suffix.split("_")[0]
             return {
                 "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{current_hap}_sorted-linked.bam",
                 "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{current_hap}_sorted-linked.bam.bai"
@@ -95,12 +95,12 @@ def get_methyl_targets():
             elif TECH == "hifi":
                 methyl_files.extend(
                     [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}.combined.{ext}"
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.combined.{ext}"
                         for hap in HAPS for ext in ["bed.gz", "bw"]
                     ]
                 )
                 methyl_files.extend(
-                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}.combined.{ext}" for ext in ["bed.gz", "bw"]]
+                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.combined.{ext}" for ext in ["bed.gz", "bw"]]
                 )
         else:
             phase_type = "non-trio"
@@ -111,7 +111,7 @@ def get_methyl_targets():
             elif TECH == "hifi":
                 methyl_files.extend(
                     [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}.combined.{ext}"
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.combined.{ext}"
                         for ext in ["bed.gz", "bw"]]
                 )
 
