@@ -44,10 +44,11 @@ def get_final_output(wildcards):
 
 def get_call_cpg_hifi_inputs(wildcards):
     if wildcards.phase_type == "trio":
-        if hasattr(wildcards, "hap"):
+        if "hap" in wildcards.suffix:
+            current_hap = wildcards.suffix.split(".")[0]
             return {
-                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{wildcards.hap}_sorted-linked.bam",
-                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{wildcards.hap}_sorted-linked.bam.bai"
+                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{current_hap}_sorted-linked.bam",
+                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{current_hap}_sorted-linked.bam.bai"
             }
         else:
             return {
