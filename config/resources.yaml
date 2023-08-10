@@ -12,6 +12,10 @@ methylation:
     mem: 4
     threads: 16
     hrs: 72
+  pb-CpG-tools:
+    mem: 4
+    threads: 16
+    hrs: 72
 
 analysis:
   dss:
