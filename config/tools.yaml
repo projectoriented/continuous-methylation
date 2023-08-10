@@ -22,6 +22,9 @@ methylink:
 modkit:
   version: "0.1.7"
 
+pb-CpG-tools:
+  version: "2.3.1"
+
 samtools:
   version: "1.14"
 

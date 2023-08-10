@@ -15,6 +15,7 @@ MODKIT_VERSION = config["modkit"]["version"]
 BEDTOOLS_VERSION = config["bedtools"]["version"]
 YAK_VERSION = config["yak"]["version"]
 HIFIASM_VERSION = config["hifiasm"]["version"]
+pbCpGtools_VERSION = config["pb-CpG-tools"]["version"]
 
 # --------  Constants: CONTAINERS -------- #
 CLAIR3_CNTR = config["clair3"]["container"]
