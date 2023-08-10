@@ -13,7 +13,7 @@ if os.path.exists("config/config.yaml"):
 # --------- Load Rules --------- #
 include: "rules/constants.smk"
 include: "rules/common.smk"
-include: "rules/modkit.smk"
+include: "rules/call_methylation.smk"
 include: "rules/trio.smk"
 include: "rules/non_trio.smk"
 include: "rules/differential_methylation.smk"

@@ -42,6 +42,24 @@ def get_final_output(wildcards):
 
     return final_output
 
+def get_call_cpg_hifi_inputs(wildcards):
+    if wildcards.phase_type == "trio":
+        if hasattr(wildcards, "hap"):
+            return {
+                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{wildcards.hap}_sorted-linked.bam",
+                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{wildcards.hap}_sorted-linked.bam.bai"
+            }
+        else:
+            return {
+                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam",
+                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam.bai"
+            }
+    elif wildcards.phase_type == "non-trio":
+        return {
+            "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam",
+            "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam.bai",
+        }
+
 
 def get_modkit_unphased_inputs(wildcards):
 
@@ -68,15 +86,33 @@ def get_methyl_targets():
     for row in manifest_df.itertuples():
         if pd.notnull(row.maternal_illumina_fofn) and pd.notnull(row.paternal_illumina_fofn):
             phase_type = "trio"
-            methyl_files.extend(
-                [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.bed.gz" for hap in HAPS],
-            )
-            methyl_files.append(f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.bed.gz")
+            if TECH == "ont":
+                methyl_files.extend(
+                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.bed.gz" for hap in HAPS],
+                )
+                methyl_files.append(f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.bed.gz")
+            elif TECH == "hifi":
+                methyl_files.extend(
+                    [
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}.combined.{ext}"
+                        for hap in HAPS for ext in ["bed.gz", "bw"]
+                    ]
+                )
+                methyl_files.extend(
+                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}.combined.{ext}" for ext in ["bed.gz", "bw"]]
+                )
         else:
             phase_type = "non-trio"
-            methyl_files.append(
-                f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.bed.gz"
-            )
+            if TECH == "ont":
+                methyl_files.append(
+                    f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.bed.gz"
+                )
+            elif TECH == "hifi":
+                methyl_files.extend(
+                    [
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}.combined.{ext}"
+                        for ext in ["bed.gz", "bw"]]
+                )
 
     return methyl_files
 
