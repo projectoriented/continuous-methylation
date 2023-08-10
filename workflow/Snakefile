@@ -16,7 +16,9 @@ include: "rules/common.smk"
 include: "rules/call_methylation.smk"
 include: "rules/trio.smk"
 include: "rules/non_trio.smk"
-include: "rules/differential_methylation.smk"
+
+if methylation_analysis:
+    include: "rules/differential_methylation.smk"
 
 # ----------- Target ----------- #
 rule all:
