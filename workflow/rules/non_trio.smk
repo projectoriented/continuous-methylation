@@ -24,7 +24,7 @@ rule align:
         f"sambamba/{SAMBAMBA_VERSION}",
     shell:
         """
-        minimap2 -t {threads} --MD --eqx -ax {params.tech_arg} {input.ref} {input.cell_fastq} | sambamba view --sam-input --format bam /dev/stdin | sambamba sort --nthreads {threads} --out {output.cell_bam} /dev/stdin && sambamba index --nthreads {threads} {output.cell_bam}
+        minimap2 -t {threads} -Y --MD --eqx -ax {params.tech_arg} {input.ref} {input.cell_fastq} | sambamba view --sam-input --format bam /dev/stdin | sambamba sort --nthreads {threads} --out {output.cell_bam} /dev/stdin && sambamba index --nthreads {threads} {output.cell_bam}
         """
 
 rule link_meth_tags_non_trio:

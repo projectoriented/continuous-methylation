@@ -92,6 +92,7 @@ elif TECH == "hifi":
                 --bam {input.bam} \
                 --output-prefix {params.output_prefix} \
                 --model $PB_MODEL/pileup_calling_model.v1.tflite \
-                --threads {threads} 2>&1 {log}
+                --threads {threads} \
+                2> {log}
             && gzip $outname   
             """
