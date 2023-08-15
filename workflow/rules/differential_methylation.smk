@@ -122,8 +122,7 @@ def get_dss_groups(wildcards):
 def get_dss_prepare_txt_output_chrX(which_one):
     def inner(wildcards):
 
-        reference = manifest_df.loc[(manifest_df["sample"] == wildcards.other_sample) & (
-            manifest_df["reference_name"].str.contains(str(wildcards.ref))), "reference_name"][0]
+        reference = manifest_df.loc[(manifest_df["sample"] == wildcards.other_sample) & (manifest_df["reference_name"].str.contains(str(wildcards.ref))), "reference_name"][0]
 
         if which_one == "haplotype":
             return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/haplotype/{wildcards.other_sample}_{{hap}}_{{phase_type}}_chrX.txt"

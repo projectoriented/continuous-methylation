@@ -22,6 +22,7 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
 - [ ] Put in CI tests
 - [ ] Add conda enviroments
 - [ ] Build bare-bone container to get minimal example running
+- [ ] Further chunk the alignment files (beyond chromosomes) in case these files are astronomical (non-human primates)
 
 ## FAQ
 1. What if I want to change the version of certain tools?
