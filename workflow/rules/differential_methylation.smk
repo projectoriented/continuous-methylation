@@ -160,7 +160,7 @@ if isinstance(config["dss_exclude_regions"], str):
         will_exclude_regions = True
         rule exclude_regions:
             input:
-                bed = rules.modkit_unphased.output.methyl_bed_gz,
+                bed = "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_cpg-pileup.bed.gz",
                 regions_to_exclude = config["dss_exclude_regions"]
             output:
                 excluded_regions = temp("results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/filtered/{sample}_cpg-pileup.bed.gz")
@@ -181,7 +181,7 @@ if isinstance(config["dss_exclude_regions"], str):
 
         rule exclude_regions_haplotype:
             input:
-                bed = rules.modkit_trio.output.methyl_bed_gz,
+                bed = "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{hap}_cpg-pileup.bed.gz",
                 regions_to_exclude = config["dss_exclude_regions"]
             output:
                 excluded_regions = temp("results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/filtered/{sample}_{hap}_cpg-pileup.bed.gz")
@@ -203,7 +203,7 @@ if isinstance(config["dss_exclude_regions"], str):
 
 rule dss_prepare_in_txt:
     input:
-        bed=rules.modkit_unphased.output.methyl_bed_gz if not will_exclude_regions else rules.exclude_regions.output.excluded_regions,
+        bed="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_cpg-pileup.bed.gz" if not will_exclude_regions else rules.exclude_regions.output.excluded_regions,
     output:
         bed_by_chrom=temp("results/{tech}/analysis/methylation/{ref}/dss/txt/{group_name}/{sample}_{phase_type}_{chr}.txt")
     threads: config["default"]["threads"]
@@ -223,7 +223,7 @@ rule dss_prepare_in_txt:
 
 rule dss_prepare_in_txt_haplotype:
     input:
-        bed=rules.modkit_trio.output.methyl_bed_gz if not will_exclude_regions else rules.exclude_regions_haplotype.output.excluded_regions,
+        bed="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{hap}_cpg-pileup.bed.gz" if not will_exclude_regions else rules.exclude_regions_haplotype.output.excluded_regions,
     output:
         bed_by_chrom=temp("results/{tech}/analysis/methylation/{ref}/dss/txt/{group_name}/haplotype/{sample}_{hap}_{phase_type}_{chr}.txt")
     threads: config["default"]["threads"]

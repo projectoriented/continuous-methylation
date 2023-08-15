@@ -42,7 +42,7 @@ def get_final_output(wildcards):
 
     return final_output
 
-def get_call_cpg_hifi_inputs(wildcards):
+def get_cpg_bams(wildcards):
     if wildcards.phase_type == "trio":
         if "hap" in wildcards.suffix:
             current_hap = wildcards.suffix.split("_")[0]
@@ -55,20 +55,6 @@ def get_call_cpg_hifi_inputs(wildcards):
                 "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam",
                 "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam.bai"
             }
-    elif wildcards.phase_type == "non-trio":
-        return {
-            "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam",
-            "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam.bai",
-        }
-
-
-def get_modkit_unphased_inputs(wildcards):
-
-    if wildcards.phase_type == "trio":
-        return {
-            "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam",
-            "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam.bai"
-        }
     elif wildcards.phase_type == "non-trio":
         return {
             "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam",
