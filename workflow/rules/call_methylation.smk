@@ -5,6 +5,8 @@ if TECH == "ont":
             ref=get_reference
         output:
             methyl_bed_gz="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bed.gz"
+        wildcard_constraints:
+            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
         log:
             "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.log",
         threads: config["methylation"]["modkit"]["threads"]
