@@ -141,12 +141,12 @@ rule clair3:
     shell:
         """
         /opt/bin/run_clair3.sh \
-        --bam_fn={input.chrom_bam} \
-        --ref_fn={input.ref} \
-        --threads={threads} \
-        --platform="{wildcards.tech}" \
-        --model_path="/opt/models/{params.guppy_model}" \
-        --output=$(dirname {output.chrom_vcf_gz}) 
+            --bam_fn={input.chrom_bam} \
+            --ref_fn={input.ref} \
+            --threads={threads} \
+            --platform="{wildcards.tech}" \
+            --model_path="/opt/models/{params.guppy_model}" \
+            --output=$(dirname {output.chrom_vcf_gz}) 
         """
 
 

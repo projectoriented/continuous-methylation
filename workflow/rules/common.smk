@@ -35,7 +35,7 @@ def get_final_output(wildcards):
     final_output = []
 
     final_output.extend(get_methyl_targets())
-    final_output.extend(get_haplotagged_bams())
+    # final_output.extend(get_haplotagged_bams())
 
     if methylation_analysis:
         final_output.extend(get_final_dss_targets())
@@ -56,10 +56,17 @@ def get_cpg_bams(wildcards):
                 "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam.bai"
             }
     elif wildcards.phase_type == "non-trio":
-        return {
-            "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam",
-            "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam.bai",
-        }
+        if "hap" in wildcards.suffix or "unknown" in wildcards.suffix:
+            current_hap = wildcards.suffix.split("_")[0]
+            return {
+                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_{current_hap}_haplotagged_sorted-linked.bam",
+                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_{current_hap}_haplotagged_sorted-linked.bam.bai",
+            }
+        else:
+            return {
+                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam",
+                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam.bai",
+            }
 
 def get_haplotagged_bams():
     haplotagged_bams = []
@@ -91,6 +98,12 @@ def get_methyl_targets():
         else:
             phase_type = "non-trio"
             if TECH == "ont":
+                methyl_files.extend(
+                    [
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.bed.gz"
+                        for hap in HAPS+["unknown"]],
+                )
+
                 methyl_files.append(
                     f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.bed.gz"
                 )

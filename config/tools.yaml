@@ -49,3 +49,6 @@ longphase:
 dss:
   version: "2.46.0"
   container: "/path/to/containers/R/DSS/2.46.0/bioconductor-dss_2.46.0--r42hc0cfd56_0.sif"
+
+ucsc:
+  version: "202003"

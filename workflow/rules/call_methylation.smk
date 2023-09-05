@@ -31,6 +31,49 @@ if TECH == "ont":
                 {input.bam} \
                 $outname && gzip $outname
             """
+
+    rule bedgraph:
+        input:
+            methyl_bed_gz=rules.modkit.output.methyl_bed_gz
+        output:
+            bedgraph=temp("results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bedgraph")
+        wildcard_constraints:
+            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
+        threads: 1
+        resources:
+            mem=lambda wildcards, attempt: attempt * 8,
+            hrs=72,
+        shell:
+            """
+            # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
+            
+            # chrom, start, n_valid, n_mod
+            zcat {input.methyl_bed_gz} | awk '{{print $1,$2,$3,$11}}' FS='\\t' OFS='\\t' > {output.bedgraph}
+            """
+
+    rule bedgraph_to_bigwig:
+        input:
+            bedgraph=rules.bedgraph.output.bedgraph,
+            chrom_sizes="results/ont/{ref}/chrom.sizes"
+        output:
+            bigwig="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bw"
+        wildcard_constraints:
+            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
+        threads: 1
+        resources:
+            mem=lambda wildcards, attempt: attempt * 8,
+            hrs=72,
+        envmodules:
+            "modules",
+            "modules-init",
+            "modules-gs/prod",
+            "modules-eichler/prod",
+            f"ucsc/{UCSC_VERSION}",
+        shell:
+            """
+            bedGraphToBigWig {input.bedgraph} {input.chrom_sizes} {output.bigwig}
+            """
+
 elif TECH == "hifi":
     rule call_cpg_hifi:
         input:
