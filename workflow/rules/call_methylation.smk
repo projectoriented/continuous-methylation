@@ -47,7 +47,7 @@ if TECH == "ont":
             """
             # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
             
-            # chrom, start, n_valid, n_mod
+            # chrom, start, end, fraction
             zcat {input.methyl_bed_gz} | awk '{{print $1,$2,$3,$11}}' FS='\\t' OFS='\\t' > {output.bedgraph}
             """
 
