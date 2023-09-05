@@ -241,8 +241,8 @@ rule combine_bam_by_hap:
     input:
         hap_bams=gather_tech_bams(which_one="hap_specific"),
     output:
-        merged_hap_bam="results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{hap}_sorted-linked.bam",
-        merged_hap_bam_bai="results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{hap}_sorted-linked.bam.bai",
+        merged_hap_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{hap}_sorted-linked.bam"),
+        merged_hap_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{hap}_sorted-linked.bam.bai"),
     threads: config["align"]["sambamba"]["threads"]
     resources:
         mem=lambda wildcards, attempt: attempt * config["align"]["sambamba"]["mem"],
