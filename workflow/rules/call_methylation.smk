@@ -6,7 +6,7 @@ if TECH == "ont":
         output:
             methyl_bed_gz="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bed.gz"
         wildcard_constraints:
-            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
+            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup|unknown_cpg-pileup"
         log:
             "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.log",
         threads: 16
@@ -38,7 +38,7 @@ if TECH == "ont":
         output:
             bedgraph=temp("results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bedgraph")
         wildcard_constraints:
-            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
+            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup|unknown_cpg-pileup"
         threads: 1
         resources:
             mem=lambda wildcards, attempt: attempt * 8,
@@ -58,7 +58,7 @@ if TECH == "ont":
         output:
             bigwig="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bw"
         wildcard_constraints:
-            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
+            suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup|unknown_cpg-pileup"
         threads: 1
         resources:
             mem=lambda wildcards, attempt: attempt * 8,

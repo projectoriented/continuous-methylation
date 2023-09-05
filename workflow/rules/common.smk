@@ -35,7 +35,6 @@ def get_final_output(wildcards):
     final_output = []
 
     final_output.extend(get_methyl_targets())
-    # final_output.extend(get_haplotagged_bams())
 
     if methylation_analysis:
         final_output.extend(get_final_dss_targets())
@@ -56,7 +55,7 @@ def get_cpg_bams(wildcards):
                 "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam.bai"
             }
     elif wildcards.phase_type == "non-trio":
-        if "hap" in wildcards.suffix or "unknown" in wildcards.suffix:
+        if "hap" in wildcards.suffix or "unknown" in wildcards.suffix and TECH == "ont":
             current_hap = wildcards.suffix.split("_")[0]
             return {
                 "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_{current_hap}_haplotagged_sorted-linked.bam",
@@ -68,13 +67,6 @@ def get_cpg_bams(wildcards):
                 "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam.bai",
             }
 
-def get_haplotagged_bams():
-    haplotagged_bams = []
-    for row in manifest_df.itertuples():
-        if pd.isnull(row.maternal_illumina_fofn) and pd.isnull(row.paternal_illumina_fofn):
-            haplotagged_bams.append(f"results/{TECH}/{row.reference_name}/align/phased/non-trio/longphase/{row.sample}/{row.sample}_haplotagged_sorted-linked.bam.bai")
-    return haplotagged_bams
-
 def get_methyl_targets():
     methyl_files = []
     for row in manifest_df.itertuples():
@@ -82,9 +74,14 @@ def get_methyl_targets():
             phase_type = "trio"
             if TECH == "ont":
                 methyl_files.extend(
-                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.bed.gz" for hap in HAPS],
+                    [
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.{ext}"
+                        for hap in HAPS for ext in ["bed.gz", "bw"]
+                    ],
                 )
-                methyl_files.append(f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.bed.gz")
+                methyl_files.extend(
+                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.{ext}" for ext in ["bed.gz", "bw"]]
+                )
             elif TECH == "hifi":
                 methyl_files.extend(
                     [
@@ -93,25 +90,33 @@ def get_methyl_targets():
                     ]
                 )
                 methyl_files.extend(
-                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.combined.{ext}" for ext in ["bed.gz", "bw"]]
+                    [
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.combined.{ext}" for ext in ["bed.gz", "bw"]
+                    ]
                 )
         else:
             phase_type = "non-trio"
             if TECH == "ont":
                 methyl_files.extend(
                     [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.bed.gz"
-                        for hap in HAPS+["unknown"]],
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.{ext}"
+                        for hap in HAPS+["unknown"] for ext in ["bed.gz", "bw"]
+                    ],
                 )
 
-                methyl_files.append(
-                    f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.bed.gz"
+                methyl_files.extend(
+                    [
+                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.{ext}"
+                        for ext in ["bed.gz", "bw"]
+                    ]
+
                 )
             elif TECH == "hifi":
                 methyl_files.extend(
                     [
                         f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.combined.{ext}"
-                        for ext in ["bed.gz", "bw"]]
+                        for ext in ["bed.gz", "bw"]
+                    ]
                 )
 
     return methyl_files
@@ -137,13 +142,17 @@ def get_pipeline_resources(which_one, caller):
 
 
 def get_reference(wildcards):
-
     try:
         reference_path = config["reference"][wildcards.ref]
     except KeyError:
         reference_path = manifest_df.at[(wildcards.sample, wildcards.ref), "reference_path"]
 
     return reference_path
+
+
+def get_reference_fai(wildcards):
+    reference = get_reference(wildcards)
+    return reference + ".fai"
 
 def get_assembly_trio_inputs(which_one):
     def inner(wildcards):
@@ -239,7 +248,7 @@ def gather_tech_bams(which_one):
 
 
 def get_by_chrom(wildcards):
-    reference_fai = get_reference(wildcards) + ".fai"
+    reference_fai = get_reference_fai(wildcards)
     fai_df = pd.read_table(
         reference_fai,
         header=None,

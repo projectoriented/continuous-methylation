@@ -1,6 +1,6 @@
 rule get_chrom_sizes:
     input:
-        ref_fai=get_reference + ".fai",
+        ref_fai=get_reference_fai,
     output:
         chrom_sizes="results/{tech}/{ref}/chrom.sizes"
     threads: 1

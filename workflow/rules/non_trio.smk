@@ -275,12 +275,12 @@ rule haplotaggedness_bam:
         bam=rules.haplotag.output.haplotagged_bam,
         bam_bai=rules.haplotag.output.haplotagged_bam_bai,
     output:
-        hap1_bam=temp("results/ont/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap1_haplotagged_sorted-linked.bam"),
-        hap2_bam=temp("results/ont/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap2_haplotagged_sorted-linked.bam"),
-        hap_unknown_bam=temp("results/ont/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_unknown_haplotagged_sorted-linked.bam"),
-        hap1_bam_bai=temp("results/ont/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap1_haplotagged_sorted-linked.bam.bai"),
-        hap2_bam_bai=temp("results/ont/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap2_haplotagged_sorted-linked.bam.bai"),
-        hap_unknown_bam_bai=temp("results/ont/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_unknown_haplotagged_sorted-linked.bam.bai"),
+        hap1_bam=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap1_haplotagged_sorted-linked.bam"),
+        hap2_bam=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap2_haplotagged_sorted-linked.bam"),
+        hap_unknown_bam=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_unknown_haplotagged_sorted-linked.bam"),
+        hap1_bam_bai=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap1_haplotagged_sorted-linked.bam.bai"),
+        hap2_bam_bai=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_hap2_haplotagged_sorted-linked.bam.bai"),
+        hap_unknown_bam_bai=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_unknown_haplotagged_sorted-linked.bam.bai"),
     envmodules:
         "modules",
         "modules-init",
