@@ -9,11 +9,11 @@ if config["tech"] == "ont":
         wildcard_constraints:
             phase_type="trio"
         params:
-            canu_max_mem = int(config["assembly"]["canu"]["mem"]) * int(config["assembly"]["canu"]["threads"])
-        threads: config["assembly"]["canu"]["threads"]
+            canu_max_mem = lambda wildcards, threads, resources: int(resources["mem"]) * int(threads)
+        threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * config["assembly"]["canu"]["mem"],
-            hrs=config["assembly"]["canu"]["hrs"],
+            mem=lambda wildcards, attempt, input: attempt * 10,
+            hrs=72,
         envmodules:
             "modules",
             "modules-init",
@@ -43,10 +43,10 @@ if config["tech"] == "ont":
         output:
             hap1 = "results/ont/assemblies/canu/trio/{sample}/haplotype/{sample}_hap1.fasta.gz",
             hap2 = "results/ont/assemblies/canu/trio/{sample}/haplotype/{sample}_hap2.fasta.gz"
-        threads: config["default"]["threads"]
+        threads: 1
         resources:
-            mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-            hrs=config["default"]["hrs"],
+            mem=lambda wildcards, attempt: attempt * 4,
+            hrs=72,
         shell:
             """
             mv {input.hap1} {output.hap1}
@@ -58,10 +58,10 @@ elif config["tech"] == "hifi":
             parental_illumina=get_yak_input,
         output:
             parental_yak=temp("results/hifi/yak/parents/{family}/{parental}.yak"),
-        threads: config["assembly"]["yak"]["threads"]
+        threads: 8
         resources:
-            mem=lambda wildcards, attempt: attempt * config["assembly"]["yak"]["mem"],
-            hrs=config["assembly"]["yak"]["hrs"],
+            mem=lambda wildcards, attempt: attempt * 8,
+            hrs=72,
         envmodules:
             "modules",
             "modules-init",
@@ -83,10 +83,10 @@ elif config["tech"] == "hifi":
         output:
             asm_hap1=temp("results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.bp.hap1.p_ctg.gfa"),
             asm_hap2=temp("results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.bp.hap2.p_ctg.gfa")
-        threads: config["assembly"]["hifiasm"]["threads"]
+        threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * config["assembly"]["hifiasm"]["mem"],
-            hrs=config["assembly"]["hifiasm"]["hrs"],
+            mem=lambda wildcards, attempt: attempt * 14,
+            hrs=72,
         log:
             "results/hifi/assemblies/hifiasm/trio/{sample}-primary.log"
         envmodules:
@@ -111,10 +111,10 @@ elif config["tech"] == "hifi":
         output:
             asm_pat="results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.dip.hap1.p_ctg.gfa",
             asm_mat="results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.dip.hap2.p_ctg.gfa",
-        threads: config["assembly"]["hifiasm"]["threads"]
+        threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * config["assembly"]["hifiasm"]["mem"],
-            hrs=config["assembly"]["hifiasm"]["hrs"],
+            mem=lambda wildcards, attempt: attempt * 14,
+            hrs=72,
         log:
             "results/hifi/assemblies/hifiasm/trio/{sample}-trio.log"
         envmodules:
@@ -140,10 +140,10 @@ rule extract_hap_reads:
         hap_read_names=temp(
             "results/{tech}/{ref}/align/phased/trio/{sample}/fastq/{sample}_{hap}.txt"
         ),
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     shell:
         """
         if [[ {wildcards.tech} == "ont" ]]; then
@@ -164,10 +164,10 @@ rule correspond_fastq_reads_to_hap:
         ),
     wildcard_constraints:
         phase_type="trio"
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * (config["default"]["mem"] * 2),
-        hrs=config["default"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * (4 * 2),
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -191,10 +191,10 @@ rule align_hap_specific_reads:
         cell_hap_bam_bai=temp(
             "results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{cell}_{hap}_sorted.bam.bai"
         ),
-    threads: config["align"]["minimap2"]["threads"]
+    threads: 12
     resources:
-        mem=lambda wildcards, attempt: attempt * config["align"]["minimap2"]["mem"],
-        hrs=config["align"]["minimap2"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -216,10 +216,10 @@ rule link_meth_tags:
     output:
         cell_hap_linked_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{cell}_{hap}_sorted-linked.bam"),
         cell_hap_linked_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{cell}_{hap}_sorted-linked.bam.bai")
-    threads: config["methylation"]["methylink"]["threads"]
+    threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * config["methylation"]["methylink"]["mem"],
-        hrs=config["methylation"]["methylink"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 2,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -243,10 +243,10 @@ rule combine_bam_by_hap:
     output:
         merged_hap_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{hap}_sorted-linked.bam"),
         merged_hap_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{hap}_sorted-linked.bam.bai"),
-    threads: config["align"]["sambamba"]["threads"]
+    threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * config["align"]["sambamba"]["mem"],
-        hrs=config["align"]["sambamba"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -269,10 +269,10 @@ rule merge_hap_bams:
     output:
         merged_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_sorted-linked.bam"),
         merged_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_sorted-linked.bam.bai"),
-    threads: config["align"]["sambamba"]["threads"]
+    threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * config["align"]["sambamba"]["mem"],
-        hrs=config["align"]["sambamba"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",

@@ -163,10 +163,10 @@ if isinstance(config["dss_exclude_regions"], str):
                 regions_to_exclude = config["dss_exclude_regions"]
             output:
                 excluded_regions = temp("results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/filtered/{sample}_cpg-pileup.bed.gz")
-            threads: config["default"]["threads"]
+            threads: 1
             resources:
-                mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-                hrs=config["default"]["hrs"]
+                mem=lambda wildcards, attempt: attempt * 4,
+                hrs=72
             envmodules:
                 "modules",
                 "modules-init",
@@ -184,10 +184,10 @@ if isinstance(config["dss_exclude_regions"], str):
                 regions_to_exclude = config["dss_exclude_regions"]
             output:
                 excluded_regions = temp("results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/filtered/{sample}_{hap}_cpg-pileup.bed.gz")
-            threads: config["default"]["threads"]
+            threads: 1
             resources:
-                mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-                hrs=config["default"]["hrs"]
+                mem=lambda wildcards, attempt: attempt * 4,
+                hrs=72
             envmodules:
                 "modules",
                 "modules-init",
@@ -205,10 +205,10 @@ rule dss_prepare_in_txt:
         bed="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_cpg-pileup.bed.gz" if not will_exclude_regions else rules.exclude_regions.output.excluded_regions,
     output:
         bed_by_chrom=temp("results/{tech}/analysis/methylation/{ref}/dss/txt/{group_name}/{sample}_{phase_type}_{chr}.txt")
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72
     params:
         min_mod = config.get("dss_min_mod", 0)
     shell:
@@ -225,10 +225,10 @@ rule dss_prepare_in_txt_haplotype:
         bed="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{hap}_cpg-pileup.bed.gz" if not will_exclude_regions else rules.exclude_regions_haplotype.output.excluded_regions,
     output:
         bed_by_chrom=temp("results/{tech}/analysis/methylation/{ref}/dss/txt/{group_name}/haplotype/{sample}_{hap}_{phase_type}_{chr}.txt")
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72
     params:
         min_mod=config.get("dss_min_mod",0)
     shell:
@@ -250,10 +250,10 @@ rule dss_autosomes:
     params:
         get_dss_params,
         output_prefix="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{analysis_type}/{chr}_{groupA}_vs_{groupB}"
-    threads: config["analysis"]["dss"]["threads"]
+    threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * config["analysis"]["dss"]["mem"],
-        hrs=config["analysis"]["dss"]["hrs"]
+        mem=lambda wildcards, attempt: attempt * 8,
+        hrs=72
     log: "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{analysis_type}/log/{chr}_{groupA}_vs_{groupB}.log"
     container:
         DSS_CNTR
@@ -273,10 +273,10 @@ rule dss_chrX:
     params:
         get_dss_params,
         output_prefix="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{chr}/{analysis_type}/{sample}_{groupA}_vs_{groupB}"
-    threads: config["analysis"]["dss"]["threads"]
+    threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * config["analysis"]["dss"]["mem"],
-        hrs=config["analysis"]["dss"]["hrs"]
+        mem=lambda wildcards, attempt: attempt * 8,
+        hrs=72
     log: "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{chr}/{analysis_type}/log/{sample}_{groupA}_vs_{groupB}.log"
     container:
         DSS_CNTR
@@ -291,10 +291,10 @@ rule softlink_chrX:
         softlinked_dmr = "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/no-intersection/{chr}_{sample}_{analysis_type}_DMR.tsv"
     wildcard_constraints:
         chr="chrX"
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72
     shell:
         """
         ln -sf $(readlink -f {input.dss_out}) {output.softlinked_dmr}
@@ -305,10 +305,10 @@ rule dss_overlap:
         unpack(get_dss_groups)
     output:
         dmr="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{chr}_{analysis_type}_DMR.tsv"
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72
     log: "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{chr}_{analysis_type}_DMR.log"
     run:
         from pybedtools import BedTool
@@ -343,10 +343,10 @@ rule dss_summary_table_chrX:
         sample_bed = get_dss_prepare_txt_output_chrX(which_one="non-haplotype")
     output:
         sample_summary_table = temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/no-intersection/tmp/{sample}_{other_sample}_{phase_type}_chrX-{analysis_type}_{dss_category}-summary.tsv")
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem= lambda wildcards,attempt: attempt * 4,
+        hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
 
@@ -357,10 +357,10 @@ rule dss_summary_table_chrX_haplotype:
         sample_bed = get_dss_prepare_txt_output_chrX(which_one="haplotype")
     output:
         sample_summary_table = temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/no-intersection/tmp/haplotype/{sample}_{other_sample}_{hap}_{phase_type}_chrX-{analysis_type}_{dss_category}-summary.tsv")
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem= lambda wildcards,attempt: attempt * 4,
+        hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
 
@@ -371,10 +371,10 @@ rule dss_summary_table:
         sample_bed=get_dss_prepare_txt_output(which_one="non-haplotype"),
     output:
         sample_summary_table=temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{sample}_{phase_type}_{chr}-{analysis_type}_{dss_category}-summary.tsv")
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem= lambda wildcards,attempt: attempt * 4,
+        hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
 
@@ -385,10 +385,10 @@ rule dss_summary_table_by_haplotype:
         sample_bed=get_dss_prepare_txt_output(which_one="haplotype"),
     output:
         sample_summary_table=temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/haplotype/{sample}_{hap}_{phase_type}_{chr}-{analysis_type}_{dss_category}-summary.tsv")
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem= lambda wildcards,attempt: attempt * 4,
+        hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
 
@@ -398,10 +398,10 @@ rule merge_dss_summary_table_by_group:
         all_samples=get_dss_summaries_by_chrom,
     output:
         chrom_summary_table="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{chr}_{analysis_type}_{dss_category}-summary.tsv.gz"
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem= lambda wildcards,attempt: attempt * 4,
+        hrs=72
     script:
         "../scripts/merge_dss_summary_tables.py"
 
@@ -411,10 +411,10 @@ rule merge_dss_summary_table_by_sample:
         all_samples=get_dss_summaries_by_chrX,
     output:
         chrom_summary_table="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/no-intersection/{sample}_chrX_{analysis_type}_{dss_category}-summary.tsv.gz"
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem= lambda wildcards,attempt: attempt * 4,
+        hrs=72
     script:
         "../scripts/merge_dss_summary_tables.py"
 
@@ -424,10 +424,10 @@ rule add_annotation:
         merged_summary = "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/{intersect_strategy}/{prefix}_{analysis_type}_{dss_category}-summary.tsv.gz",
     output:
         added_annotation = "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/{intersect_strategy}/{prefix}_{analysis_type}_{dss_category}-annotated-summary.tsv.gz"
-    threads: config["default"]["threads"]
+    threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * config["default"]["mem"],
-        hrs=config["default"]["hrs"]
+        mem= lambda wildcards,attempt: attempt * 4,
+        hrs=72
     run:
         from pybedtools import BedTool
         import pandas as pd

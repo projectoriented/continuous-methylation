@@ -26,13 +26,12 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
 
 ## FAQ
 1. What if I want to change the version of certain tools?
-   1. You could change the defaults in the tools.yaml config, and if you want to change the resources needed for certain steps- then please edit the resources.yaml
+   1. You could change the defaults in the tools.yaml config, and if you want to change the resources needed for certain steps- then please refer to the [snakemake documentation](https://snakemake.readthedocs.io/en/stable/executing/cli.html#useful-command-line-arguments) regarding this topic
    * 
    ```
    ./config
    ├── config.yaml
    ├── manifest.tab
-   ├── resources.yaml
    └── tools.yaml
    ```
 2. How do I use different tech?

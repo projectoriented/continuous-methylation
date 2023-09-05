@@ -11,10 +11,10 @@ rule align:
         ),
     params:
         tech_arg = lambda wildcards: f"map-{wildcards.tech}"
-    threads: config["align"]["minimap2"]["threads"]
+    threads: 12
     resources:
-        mem=lambda wildcards, attempt: attempt * config["align"]["minimap2"]["mem"],
-        hrs=config["align"]["minimap2"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -24,7 +24,20 @@ rule align:
         f"sambamba/{SAMBAMBA_VERSION}",
     shell:
         """
-        minimap2 -t {threads} -Y --MD --eqx -ax {params.tech_arg} {input.ref} {input.cell_fastq} | sambamba view --sam-input --format bam /dev/stdin | sambamba sort --nthreads {threads} --out {output.cell_bam} /dev/stdin && sambamba index --nthreads {threads} {output.cell_bam}
+        minimap2 \
+            -t {threads} -Y --MD --eqx \
+            -ax {params.tech_arg} \
+            {input.ref} {input.cell_fastq} \
+            | \
+            sambamba view \
+                --sam-input \
+                --format bam \
+                /dev/stdin \
+            | \
+            sambamba sort \
+            --nthreads {threads} \
+            --out {output.cell_bam} \
+            /dev/stdin && sambamba index --nthreads {threads} {output.cell_bam}
         """
 
 rule link_meth_tags_non_trio:
@@ -35,10 +48,10 @@ rule link_meth_tags_non_trio:
     output:
         cell_linked_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_sorted-linked.bam"),
         cell_linked_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_sorted-linked.bam.bai")
-    threads: config["methylation"]["methylink"]["threads"]
+    threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * config["methylation"]["methylink"]["mem"],
-        hrs=config["methylation"]["methylink"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 2,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -61,10 +74,10 @@ rule merge_align:
     output:
         merged_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_sorted-linked.bam"),
         merged_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_sorted-linked.bam.bai"),
-    threads: config["align"]["sambamba"]["threads"]
+    threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * config["align"]["sambamba"]["mem"],
-        hrs=config["align"]["sambamba"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -92,10 +105,10 @@ rule split_bam_by_chrom:
         chr_bam_bai=temp(
             "results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-linked-{chr}.bam.bai"
         ),
-    threads: config["variant_call"]["samtools"]["threads"]
+    threads: 4
     resources:
-        mem=lambda wildcards, attempt: attempt * config["variant_call"]["samtools"]["mem"],
-        hrs=config["variant_call"]["samtools"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 8,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -117,10 +130,10 @@ rule clair3:
         chrom_vcf_gz=temp(
             "results/{tech}/{ref}/variant_call/clair3/{sample}/{chr}/merge_output.vcf.gz"
         )
-    threads: config["variant_call"]["clair3"]["threads"]
+    threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * config["variant_call"]["clair3"]["mem"],
-        hrs=config["variant_call"]["clair3"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 2,
+        hrs=72,
     container:
         CLAIR3_CNTR
     params:
@@ -151,10 +164,10 @@ rule sniffles:
         ),
     params:
         trf = get_pipeline_resources(caller="sniffles", which_one="trf")
-    threads: config["variant_call"]["sniffles"]["threads"]
+    threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * config["variant_call"]["sniffles"]["mem"],
-        hrs=config["variant_call"]["sniffles"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -175,10 +188,10 @@ rule merge_chr_calls:
         merged_vcf_tbi="results/{tech}/{ref}/variant_call/{caller}/{sample}/{sample}_{caller}.vcf.gz.tbi"
     wildcard_constraints:
         caller="clair3|sniffles",
-    threads: config["variant_call"]["bcftools"]["threads"]
+    threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * config["variant_call"]["bcftools"]["mem"],
-        hrs=config["variant_call"]["bcftools"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 8,
+        hrs=72,
     envmodules:
         "modules",
         "modules-init",
@@ -209,10 +222,10 @@ rule longphase:
         "modules-gs/prod",
         "modules-eichler/prod",
         f"longphase/{LONGPHASE_VERSION}",
-    threads: config["variant_call"]["longphase"]["threads"]
+    threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * config["variant_call"]["longphase"]["mem"],
-        hrs=config["variant_call"]["longphase"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     shell:
         """
         longphase phase \
@@ -242,10 +255,10 @@ rule haplotag:
         "modules-eichler/prod",
         f"longphase/{LONGPHASE_VERSION}",
         f"samtools/{SAMTOOLS_VERSION}",
-    threads: config["variant_call"]["longphase"]["threads"]
+    threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * config["variant_call"]["longphase"]["mem"],
-        hrs=config["variant_call"]["longphase"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     shell:
         """
         longphase haplotag \
@@ -274,10 +287,10 @@ rule haplotaggedness_bam:
         "modules-gs/prod",
         "modules-eichler/prod",
         f"samtools/{SAMTOOLS_VERSION}",
-    threads: config["variant_call"]["longphase"]["threads"]
+    threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * config["variant_call"]["longphase"]["mem"],
-        hrs=config["variant_call"]["longphase"]["hrs"],
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
     shell:
         """
         samtools view -e '[HP==1]' -@ {threads} -bh {input.bam} > {output.hap1_bam} && samtools index -@ {threads} {output.hap1_bam}

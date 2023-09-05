@@ -9,10 +9,10 @@ if TECH == "ont":
             suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
         log:
             "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.log",
-        threads: config["methylation"]["modkit"]["threads"]
+        threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * config["methylation"]["modkit"]["mem"],
-            hrs=config["methylation"]["modkit"]["hrs"],
+            mem=lambda wildcards, attempt: attempt * 4,
+            hrs=72,
         envmodules:
             "modules",
             "modules-init",
@@ -41,10 +41,10 @@ elif TECH == "hifi":
             methyl_bigwig = "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.combined.bw",
         wildcard_constraints:
             suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
-        threads: config["methylation"]["pb-CpG-tools"]["threads"]
+        threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * config["methylation"]["pb-CpG-tools"]["mem"],
-            hrs=config["methylation"]["pb-CpG-tools"]["hrs"],
+            mem=lambda wildcards, attempt: attempt * 4,
+            hrs=72,
         params:
             output_prefix="results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}"
         envmodules:
