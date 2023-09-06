@@ -293,7 +293,7 @@ rule haplotaggedness_bam:
         hrs=72,
     shell:
         """
-        samtools view -e '[HP==1]' -@ {threads} -bh {input.bam} > {output.hap1_bam} && samtools index -@ {threads} {output.hap1_bam}
-        samtools view -e '[HP==2]' -@ {threads} -bh {input.bam} > {output.hap2_bam} && samtools index -@ {threads} {output.hap2_bam}
+        samtools view -e '[HP]==1' -@ {threads} -bh {input.bam} > {output.hap1_bam} && samtools index -@ {threads} {output.hap1_bam}
+        samtools view -e '[HP]==2' -@ {threads} -bh {input.bam} > {output.hap2_bam} && samtools index -@ {threads} {output.hap2_bam}
         samtools view -e '![HP]' -@ {threads} -bh {input.bam} > {output.hap_unknown_bam} && samtools index -@ {threads} {output.hap_unknown_bam}
         """

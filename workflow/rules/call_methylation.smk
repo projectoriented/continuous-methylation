@@ -47,6 +47,9 @@ if TECH == "ont":
             """
             # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
             
+            # Fixating the locale is necessary for bedGraphToBigWig to not freak out
+            export LC_COLLATE=C
+            
             # chrom, start, end, fraction
             zcat {input.methyl_bed_gz} | awk '{{print $1,$2,$3,$11}}' FS='\\t' OFS='\\t' | sort -k 1,1 -k2,2n > {output.bedgraph}
             """
