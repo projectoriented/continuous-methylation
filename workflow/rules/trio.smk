@@ -271,8 +271,8 @@ rule merge_hap_bams:
     input:
         hap_bams = expand("results/{{tech}}/{{ref}}/align/phased/{{phase_type}}/{{sample}}/{{sample}}_{hap}_sorted-linked.bam", hap=HAPS)
     output:
-        merged_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_sorted-linked.bam"),
-        merged_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_sorted-linked.bam.bai"),
+        merged_bam="results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_sorted-linked.bam",
+        merged_bam_bai="results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_sorted-linked.bam.bai",
     threads: 8
     resources:
         mem=lambda wildcards, attempt: attempt * 4,
@@ -285,5 +285,8 @@ rule merge_hap_bams:
         f"sambamba/{SAMBAMBA_VERSION}",
     shell:
         """
-        sambamba merge --nthreads {threads} {output.merged_bam} {input.hap_bams} && sambamba index --nthreads {threads} {output.merged_bam}
+        sambamba merge \
+            --nthreads {threads} \
+            {output.merged_bam} {input.hap_bams} \
+        && sambamba index --nthreads {threads} {output.merged_bam}
         """

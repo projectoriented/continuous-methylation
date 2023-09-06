@@ -246,8 +246,8 @@ rule haplotag:
         bam="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-linked.bam",
         bam_bai="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-linked.bam.bai",
     output:
-        haplotagged_bam=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_haplotagged_sorted-linked.bam"),
-        haplotagged_bam_bai=temp("results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_haplotagged_sorted-linked.bam.bai"),
+        haplotagged_bam="results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_haplotagged_sorted-linked.bam",
+        haplotagged_bam_bai="results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_haplotagged_sorted-linked.bam.bai",
     envmodules:
         "modules",
         "modules-init",
