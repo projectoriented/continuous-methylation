@@ -170,9 +170,9 @@ def get_assembly_trio_inputs(which_one):
 
 def get_yak_input(wildcards):
     yak_df = manifest_df.copy()
-    yak_df = yak_df.reset_index(drop=True).set_index(["group_name"], drop=False)
-    mat_illumina = yak_df.loc[yak_df.at[wildcards.family, "maternal_illumina_fofn"].notnull(), "maternal_illumina_fofn"][0]
-    pat_illumina = yak_df.loc[yak_df.at[wildcards.family,  "paternal_illumina_fofn"].notnull(), "paternal_illumina_fofn"][0]
+    yak_df = yak_df.reset_index(drop=True).set_index(["group_name", "sample"], drop=False)
+    mat_illumina = yak_df.at[(wildcards.family, wildcards.sample), "maternal_illumina_fofn"]
+    pat_illumina = yak_df.at[(wildcards.family, wildcards.sample), "paternal_illumina_fofn"]
     if wildcards.parental == "mat":
         return mat_illumina
     elif wildcards.parental == "pat":
