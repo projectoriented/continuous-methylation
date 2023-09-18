@@ -55,10 +55,10 @@ def get_dss_inputs(wildcards):
 
     if wildcards.chr != "chrX":
         subset_df = dss_df.loc[dss_df["sample"].str.contains(fr"{wildcards.groupA}|{wildcards.groupB}")]
-        file_pattern = [f"results/{wildcards.tech}/analysis/methylation/{{ref}}/dss/txt/{wildcards.group_name}/{{sample}}_{{phase_type}}_{{{{chr}}}}.txt"]
+        file_pattern = [f"results/{wildcards.tech}/analysis/methylation/{{ref}}/dss/txt/{wildcards.group_name}/{{sample}}_cpg-pileup_{{phase_type}}_{{{{chr}}}}.txt"]
     else:
         subset_df = dss_df.query(fr"sample == '{wildcards.sample}'")
-        file_pattern = [f"results/{wildcards.tech}/analysis/methylation/{{ref}}/dss/txt/{wildcards.group_name}/haplotype/{{sample}}_{hap}_{{phase_type}}_{{{{chr}}}}.txt" for hap in HAPS]
+        file_pattern = [ f"results/{wildcards.tech}/analysis/methylation/{{ref}}/dss/txt/{wildcards.group_name}/{{sample}}_{suffix}_{{phase_type}}_{{{{chr}}}}.txt" for suffix in ['hap1_cpg-pileup', 'hap2_cpg-pileup']]
 
     for row in subset_df.itertuples():
         if pd.isnull(row.maternal_illumina_fofn):
@@ -125,9 +125,9 @@ def get_dss_prepare_txt_output_chrX(which_one):
         reference = manifest_df.loc[(manifest_df["sample"] == wildcards.other_sample) & (manifest_df["reference_name"].str.contains(str(wildcards.ref))), "reference_name"][0]
 
         if which_one == "haplotype":
-            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/haplotype/{wildcards.other_sample}_{{hap}}_{{phase_type}}_chrX.txt"
+            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/{wildcards.other_sample}_{{hap}}_cpg-pileup_{{phase_type}}_chrX.txt"
         elif which_one == "non-haplotype":
-            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/{wildcards.other_sample}_{{phase_type}}_chrX.txt"
+            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/{wildcards.other_sample}_cpg-pileup_{{phase_type}}_chrX.txt"
         else:
             sys.exit(f"Unsupported param: {which_one}")
 
@@ -141,9 +141,9 @@ def get_dss_prepare_txt_output(which_one):
             manifest_df["reference_name"].str.contains(str(wildcards.ref))), "reference_name"][0]
 
         if which_one == "haplotype":
-            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/haplotype/{{sample}}_{{hap}}_{{phase_type}}_{{chr}}.txt"
+            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/{{sample}}_{{hap}}_cpg-pileup_{{phase_type}}_{{chr}}.txt"
         elif which_one == "non-haplotype":
-            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/{{sample}}_{{phase_type}}_{{chr}}.txt"
+            return f"results/{wildcards.tech}/analysis/methylation/{reference}/dss/txt/{{group_name}}/{{sample}}_cpg-pileup_{{phase_type}}_{{chr}}.txt"
         else:
             sys.exit(f"Unsupported param: {which_one}")
 
@@ -152,6 +152,12 @@ def get_dss_prepare_txt_output(which_one):
 def get_anno_dict(wildcards):
     return config["annotations"][wildcards.ref]
 
+def get_tech_specific_bed(wildcards):
+    if wildcards.tech == "hifi":
+        return "results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.combined.bed.gz"
+    else:
+        return "results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.bed.gz"
+
 will_exclude_regions = False
 
 if isinstance(config["dss_exclude_regions"], str):
@@ -159,10 +165,12 @@ if isinstance(config["dss_exclude_regions"], str):
         will_exclude_regions = True
         rule exclude_regions:
             input:
-                bed = "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_cpg-pileup.bed.gz",
+                bed = get_tech_specific_bed,
                 regions_to_exclude = config["dss_exclude_regions"]
             output:
-                excluded_regions = temp("results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/filtered/{sample}_cpg-pileup.bed.gz")
+                excluded_regions = temp("results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/filtered/{sample}_{suffix}.bed.gz")
+            wildcard_constraints:
+                suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
             threads: 1
             resources:
                 mem=lambda wildcards, attempt: attempt * 4,
@@ -177,60 +185,20 @@ if isinstance(config["dss_exclude_regions"], str):
                 """
                 bedtools subtract -a {input.bed} -b {input.regions_to_exclude} | gzip -c > {output.excluded_regions}
                 """
-
-        rule exclude_regions_haplotype:
-            input:
-                bed = "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{hap}_cpg-pileup.bed.gz",
-                regions_to_exclude = config["dss_exclude_regions"]
-            output:
-                excluded_regions = temp("results/{tech}/{ref}/methylation/phased/{phase_type}/{sample}/filtered/{sample}_{hap}_cpg-pileup.bed.gz")
-            threads: 1
-            resources:
-                mem=lambda wildcards, attempt: attempt * 4,
-                hrs=72
-            envmodules:
-                "modules",
-                "modules-init",
-                "modules-gs/prod",
-                "modules-eichler/prod",
-                f"bedtools/{BEDTOOLS_VERSION}"
-            shell:
-                """
-                bedtools subtract -a {input.bed} -b {input.regions_to_exclude} | gzip -c > {output.excluded_regions}
-                """
-
 
 rule dss_prepare_in_txt:
     input:
-        bed="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_cpg-pileup.bed.gz" if not will_exclude_regions else rules.exclude_regions.output.excluded_regions,
+        bed=get_tech_specific_bed if not will_exclude_regions else rules.exclude_regions.output.excluded_regions,
     output:
-        bed_by_chrom=temp("results/{tech}/analysis/methylation/{ref}/dss/txt/{group_name}/{sample}_{phase_type}_{chr}.txt")
+        bed_by_chrom=temp("results/{tech}/analysis/methylation/{ref}/dss/txt/{group_name}/{sample}_{suffix}_{phase_type}_{chr}.txt")
+    wildcard_constraints:
+        suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
     threads: 1
     resources:
         mem=lambda wildcards, attempt: attempt * 4,
         hrs=72
     params:
         min_mod = config.get("dss_min_mod", 0)
-    shell:
-        """
-        # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
-
-        # chrom, start, n_valid, n_mod
-        zgrep -w {wildcards.chr} {input.bed} | awk '$12 >= {params.min_mod} {{print $1,$2,$10,$12}}' FS='\\t' OFS='\\t' > {output.bed_by_chrom}
-        """
-
-
-rule dss_prepare_in_txt_haplotype:
-    input:
-        bed="results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{hap}_cpg-pileup.bed.gz" if not will_exclude_regions else rules.exclude_regions_haplotype.output.excluded_regions,
-    output:
-        bed_by_chrom=temp("results/{tech}/analysis/methylation/{ref}/dss/txt/{group_name}/haplotype/{sample}_{hap}_{phase_type}_{chr}.txt")
-    threads: 1
-    resources:
-        mem=lambda wildcards, attempt: attempt * 4,
-        hrs=72
-    params:
-        min_mod=config.get("dss_min_mod",0)
     shell:
         """
         # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
