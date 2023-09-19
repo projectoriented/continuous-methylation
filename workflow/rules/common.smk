@@ -192,62 +192,42 @@ def get_parental_yak(wildcards):
         "pat": f"results/hifi/yak/parents/{family}/pat.yak",
     }
 
+def get_fofn_df(which_one, sample_name, ref_name):
+    fp = manifest_df.loc[
+        (manifest_df["sample"] == sample_name) & (manifest_df["reference_name"] == ref_name), which_one][0]
+    fofn_df = pd.read_table(fp,header=None,names=["file_path"])
+    fofn_df["basename"] = fofn_df.apply(
+        lambda row: os.path.basename(row.file_path),axis=1
+    )
+    fofn_df["n"] = fofn_df.index
+    if which_one == "fofn":
+        fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.fastq.*")
+    elif which_one == "unmapped_bam_fofn":
+        fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.bam.*")
+    else:
+        raise ValueError(f"Invalid argument for {which_one}")
+
+    # If no duplicates are present in file_path but exists in cell, then add unique identifier to cell
+    if fofn_df["cell"].duplicated().any() and not fofn_df["file_path"].duplicated().any():
+        fofn_df["cell"] = fofn_df.apply(lambda x: f"{x.cell}-{x.n}",axis=1)
+
+    fofn_df.set_index(["cell"],inplace=True)
+    return fofn_df
 
 def get_tech_files(which_one):
-
     def inner(wildcards):
-
-        fp = manifest_df.loc[(manifest_df["sample"] == wildcards.sample) & (manifest_df["reference_name"] == wildcards.ref), which_one][0]
-        fofn_df = pd.read_table(fp,header=None,names=["file_path"])
-        fofn_df["basename"] = fofn_df.apply(
-            lambda row: os.path.basename(row.file_path),axis=1
-        )
-        fofn_df["n"] = fofn_df.index
-        if which_one == "fofn":
-
-            fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.fastq.*")
-
-            # If no duplicates are present in file_path but exists in cell, then add unique identifier to cell
-            if fofn_df["cell"].duplicated().any() and not fofn_df["file_path"].duplicated().any():
-                fofn_df["cell"] = fofn_df.apply(lambda x: f"{x.cell}-{x.n}", axis=1)
-
-            fofn_df.set_index(["cell"],inplace=True)
-            return fofn_df.at[wildcards.cell, "file_path"]
-
-        elif which_one == "unmapped_bam_fofn":
-
-            fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.bam.*")
-
-            # If no duplicates are present in file_path but exists in cell, then add unique identifier to cell
-            if fofn_df["cell"].duplicated().any() and not fofn_df["file_path"].duplicated().any():
-                fofn_df["cell"] = fofn_df.apply(lambda x: f"{x.cell}-{x.n}", axis=1)
-
-            fofn_df.set_index(["cell"],inplace=True)
-            return fofn_df.at[wildcards.cell, "file_path"]
-
+        fofn_df = get_fofn_df(which_one=which_one, sample_name=wildcards.sample, ref_name=wildcards.ref)
+        return fofn_df.at[wildcards.cell, "file_path"]
     return inner
 
 def gather_tech_bams(which_one):
     def inner(wildcards):
-        fp = manifest_df.loc[(manifest_df["sample"] == wildcards.sample) & (manifest_df["reference_name"] == wildcards.ref), "fofn"][0]
-        fofn_df = pd.read_table(fp,header=None,names=["file_path"])
-
-        fofn_df["basename"] = fofn_df.apply(
-            lambda row: os.path.basename(row.file_path),axis=1
-        )
-        fofn_df["n"] = fofn_df.index
-
-        fofn_df["cell"] = fofn_df.basename.str.extract(r"(.*)\.fastq.*")
-
-        # If no duplicates are present in file_path but exists in cell, then add unique identifier to cell
-        if fofn_df["cell"].duplicated().any() and not fofn_df["file_path"].duplicated().any():
-            fofn_df["cell"] = fofn_df.apply(lambda x: f"{x.cell}-{x.n}",axis=1)
-
+        # Just get cell/movie names- so either fofn or unmapped_bam_fofn works.
+        fofn_df = get_fofn_df(which_one="unmapped_bam_fofn",sample_name=wildcards.sample,ref_name=wildcards.ref)
         if which_one == "hap_specific":
-            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/{{sample}}/{{sample}}_{cell}_{{hap}}_sorted-linked.bam",cell=fofn_df.cell.tolist(), tech=[TECH])
+            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/{{sample}}/{{sample}}_{cell}_{{hap}}_sorted-linked.bam",cell=fofn_df.index.tolist(), tech=[TECH])
         elif which_one == "not_hap_specific":
-            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/minimap2/{{sample}}/{{sample}}_{cell}_sorted-linked.bam",cell=fofn_df.cell.tolist(), tech=[TECH])
-
+            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/minimap2/{{sample}}/{{sample}}_{cell}_sorted-linked.bam",cell=fofn_df.index.tolist(), tech=[TECH])
     return inner
 
 
