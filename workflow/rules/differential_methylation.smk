@@ -206,7 +206,7 @@ rule dss_prepare_in_txt:
             
             # chrom, start, n_valid, n_mod
             zgrep -w {wildcards.chr} {input.bed} | awk '$7 >= {params.min_mod} {{print $1,$2,$6,$7}}' FS='\\t' OFS='\\t' > {output.bed_by_chrom}
-        elif [ {wildcards.tech} == "hifi" ]; then
+        elif [ {wildcards.tech} == "ont" ]; then
             # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
             
             # chrom, start, n_valid, n_mod
