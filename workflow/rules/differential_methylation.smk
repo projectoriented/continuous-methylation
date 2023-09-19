@@ -201,10 +201,19 @@ rule dss_prepare_in_txt:
         min_mod = config.get("dss_min_mod", 0)
     shell:
         """
-        # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
-
-        # chrom, start, n_valid, n_mod
-        zgrep -w {wildcards.chr} {input.bed} | awk '$12 >= {params.min_mod} {{print $1,$2,$10,$12}}' FS='\\t' OFS='\\t' > {output.bed_by_chrom}
+        if [ {wildcards.tech} == "hifi" ]; then
+            # Columns grabbed are based on this documentation: https://github.com/PacificBiosciences/pb-CpG-tools#bed-file-format
+            
+            # chrom, start, n_valid, n_mod
+            zgrep -w {wildcards.chr} {input.bed} | awk '$7 >= {params.min_mod} {{print $1,$2,$6,$7}}' FS='\\t' OFS='\\t' > {output.bed_by_chrom}
+        elif [ {wildcards.tech} == "hifi" ]; then
+            # Columns grabbed are based on this documentation: https://github.com/nanoporetech/modkit/#bedmethyl-column-descriptions
+            
+            # chrom, start, n_valid, n_mod
+            zgrep -w {wildcards.chr} {input.bed} | awk '$12 >= {params.min_mod} {{print $1,$2,$10,$12}}' FS='\\t' OFS='\\t' > {output.bed_by_chrom}
+        else
+            echo "Invalid tech wildcard: {wildcards.tech}" 1>&2; exit 1 
+        fi
         """
 
 rule dss_autosomes:
