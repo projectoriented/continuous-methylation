@@ -1,6 +1,6 @@
 # continuous-methylation
 
-A bioinformatics pipeline to get methylation signals with [modkit](https://github.com/nanoporetech/modkit/) (in bed format) for phased alignments using long-read sequencing (third-gen) data.
+A bioinformatics pipeline to get methylation calls (in bed format) for phased alignments using long-read sequencing (third-gen) data.
 
 This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments using a phased assembly if parental illuminas are available, 2) generate phased alignments using heterozygous SNVs + SVs and will output a single bam that you can query using "HP:i:1 or HP:i:2 or ![HP]", 3) [only for autism cohort] perform differential methylation.
 

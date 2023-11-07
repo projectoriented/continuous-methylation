@@ -1,5 +1,8 @@
 HAPS = ["hap1", "hap2"]
-TECH = config["tech"]
+TECH = config.get("tech", "ont")
+
+# --------  Constants: PARAMS -------- #
+MINIMAP2_PARAMS = config["minimap2"].get("params", "")
 
 # --------  Constants: VERSION -------- #
 SAMTOOLS_VERSION = config["samtools"]["version"]

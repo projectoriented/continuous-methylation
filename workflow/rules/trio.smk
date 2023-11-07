@@ -191,6 +191,8 @@ rule align_hap_specific_reads:
         cell_hap_bam_bai=temp(
             "results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{cell}_{hap}_sorted.bam.bai"
         ),
+    params:
+        mm2_params = MINIMAP2_PARAMS
     threads: 12
     resources:
         mem=lambda wildcards, attempt: attempt * 4,
@@ -204,11 +206,19 @@ rule align_hap_specific_reads:
         f"sambamba/{SAMBAMBA_VERSION}",
     shell:
         """
-        minimap2 -t {threads} -I 10G -Y -y --secondary=no --eqx -a -x map-{wildcards.tech} {input.ref} {input.cell_hap_fastq} \
+        minimap2 \
+            -t {threads} -I 10G \
+            -Y -y --secondary=no \
+            --eqx -a -x map-{wildcards.tech} \
+            {params.mm2_params} \
+            {input.ref} {input.cell_hap_fastq} \
         | \
         sambamba view --sam-input --format bam /dev/stdin \
         | \
-        sambamba sort --nthreads {threads} --out {output.cell_hap_bam} /dev/stdin && sambamba index --nthreads {threads} {output.cell_hap_bam}
+        sambamba sort \
+            --nthreads {threads} \
+            --out {output.cell_hap_bam} /dev/stdin \
+            && sambamba index --nthreads {threads} {output.cell_hap_bam}
         """
 
 

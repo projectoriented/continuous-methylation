@@ -10,7 +10,8 @@ rule align:
             "results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_sorted.bam.bai"
         ),
     params:
-        tech_arg = lambda wildcards: f"map-{wildcards.tech}"
+        tech_arg = lambda wildcards: f"map-{wildcards.tech}",
+        mm2_params = MINIMAP2_PARAMS
     threads: 12
     resources:
         mem=lambda wildcards, attempt: attempt * 4,
@@ -27,6 +28,7 @@ rule align:
         minimap2 \
             -t {threads} -Y --MD --eqx \
             -ax {params.tech_arg} \
+            {params.mm2_params} \
             {input.ref} {input.cell_fastq} \
             | \
             sambamba view \
