@@ -260,7 +260,12 @@ def get_final_dss_targets():
     # chrom_set = config["dm_chrom"].split(",")
 
     group_name_list = subset_df["group_name"].unique().tolist()
-    group_a_list = subset_df.loc[dss_df["group"] == "A", "sample"]
+    group_a_list = subset_df.loc[dss_df["group"] == "A", "sample"].tolist()
+
+    # Sort & make sure they are same length.
+    group_name_list.sort()
+    group_a_list.sort()
+    assert len(group_name_list) == len(group_a_list), "dss: group_name and groupA has differing lengths."
 
     autosomes_set = ['chr{}'.format(x) for x in list(range(1, 23))]
 

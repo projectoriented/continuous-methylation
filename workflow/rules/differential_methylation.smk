@@ -304,7 +304,8 @@ rule dss_overlap:
         a_bed = BedTool.from_dataframe(a_df)
         b_dict = {idx: BedTool.from_dataframe(pd.read_table(fp, header=0, dtype={"start": int, "end": int})) for idx, fp in enumerate(b)}
 
-        intersection_df = ( a_bed + list(b_dict.values()) ).to_dataframe(disable_auto_names=True, names=target_cols,header=None)
+        # intersection_df = ( a_bed + list(b_dict.values()) ).to_dataframe(disable_auto_names=True, names=target_cols,header=None)
+        intersection_df = a_bed.intersect(b_dict.get(0) + b_dict.get(1), wa=False).to_dataframe(disable_auto_names=True,names=target_cols,header=None)
 
         if intersection_df.empty:
             print(f"No intersection happened for {wildcards.groupA} in {wildcards.chr}", file=sys.stderr)
