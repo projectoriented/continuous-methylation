@@ -131,7 +131,8 @@ rule clair3:
     output:
         chrom_vcf_gz=temp(
             "results/{tech}/{ref}/variant_call/clair3/{sample}/{chr}/merge_output.vcf.gz"
-        )
+        ),
+        chrom_accessory_files=temp(directory("results/{tech}/{ref}/variant_call/clair3/{sample}/{chr}/"))
     threads: 16
     resources:
         mem=lambda wildcards, attempt: attempt * 2,
