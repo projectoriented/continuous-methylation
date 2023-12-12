@@ -17,7 +17,7 @@ hifiasm:
   version: "0.16.1"
 
 methylink:
-  version: "0.4.0"
+  version: "0.6.0"
 
 modkit:
   version: "0.1.7"

@@ -54,6 +54,7 @@ rule link_meth_tags_non_trio:
     resources:
         mem=lambda wildcards, attempt: attempt * 2,
         hrs=72,
+        disk="250G",
     envmodules:
         "modules",
         "modules-init",
@@ -64,6 +65,7 @@ rule link_meth_tags_non_trio:
         """
         methylink \
           --threads {threads} \
+          --tmp {resources.tmpdir} \
           --aln {input.cell_bam} \
           --sample {wildcards.sample}_{wildcards.cell} \
           --methyl_bams "$(ls {input.unmapped_bam})" \

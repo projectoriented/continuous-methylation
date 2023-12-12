@@ -234,6 +234,7 @@ rule link_meth_tags:
     resources:
         mem=lambda wildcards, attempt: attempt * 2,
         hrs=72,
+        disk="250G"
     envmodules:
         "modules",
         "modules-init",
@@ -244,6 +245,7 @@ rule link_meth_tags:
         """
         methylink \
           --threads {threads} \
+          --tmp {resources.tmpdir} \          
           --aln {input.cell_hap_bam} \
           --sample {wildcards.sample}_{wildcards.cell}_{wildcards.hap} \
           --methyl_bams "$(echo {input.unmapped_bam})" \
