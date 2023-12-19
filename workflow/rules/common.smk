@@ -35,6 +35,7 @@ def get_final_output(wildcards):
     final_output = []
 
     final_output.extend(get_methyl_targets())
+    final_output.extend(cleanup_things())
 
     if methylation_analysis:
         final_output.extend(get_final_dss_targets())
@@ -304,3 +305,18 @@ def get_final_dss_targets():
         targets.extend([x.format(ref=ref, chrom=c) for x in current_ref_targets for c in autosomes_set])
 
     return targets
+
+def cleanup_things():
+    cleanup = []
+
+    vc_pattern = "results/{tech}/{ref}/variant_call/clair3/{sample}/.cleaned.txt"
+    for row in manifest_df.itertuples():
+        if not (pd.notnull(row.maternal_illumina_fofn) and pd.notnull(row.paternal_illumina_fofn)):
+            cleanup.append(
+                vc_pattern.format(
+                    tech=TECH,
+                    ref=row.reference_name,
+                    sample=row.sample
+                )
+            )
+    return cleanup

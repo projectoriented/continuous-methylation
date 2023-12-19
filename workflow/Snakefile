@@ -25,4 +25,5 @@ rule all:
     input: get_final_output
 
 onsuccess:
-    shell("find . -type d -name '0-kmers' | xargs rm -rf")
+    shell("find . -type d -name '0-kmers' | xargs -i rm -rf {}")
+    shell("ls -d results/hifi/assemblies/hifiasm/trio/*{.r_utg.gfa,*.bin} | xargs -i rm -rf {}")
