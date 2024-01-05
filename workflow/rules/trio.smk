@@ -45,7 +45,7 @@ if config["tech"] == "ont":
             hap2 = "results/ont/assemblies/canu/trio/{sample}/haplotype/{sample}_hap2.fasta.gz"
         threads: 1
         resources:
-            mem=lambda wildcards, attempt: attempt * 4,
+            mem=calc_mem_gb,
             hrs=72,
         shell:
             """
@@ -60,7 +60,7 @@ elif config["tech"] == "hifi":
             parental_yak=temp("results/hifi/yak/parents/{family}/{parental}.yak"),
         threads: 8
         resources:
-            mem=lambda wildcards, attempt: attempt * 8,
+            mem=calc_mem_gb,
             hrs=72,
         envmodules:
             "modules",
@@ -85,7 +85,7 @@ elif config["tech"] == "hifi":
             asm_hap2=temp("results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.bp.hap2.p_ctg.gfa")
         threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * 14,
+            mem=calc_mem_gb,
             hrs=72,
         log:
             "results/hifi/assemblies/hifiasm/trio/{sample}-primary.log"
@@ -113,7 +113,7 @@ elif config["tech"] == "hifi":
             asm_mat="results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.dip.hap2.p_ctg.gfa",
         threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * 14,
+            mem=calc_mem_gb,
             hrs=72,
         log:
             "results/hifi/assemblies/hifiasm/trio/{sample}-trio.log"
@@ -142,7 +142,7 @@ rule extract_hap_reads:
         ),
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     shell:
         """
@@ -166,7 +166,7 @@ rule correspond_fastq_reads_to_hap:
         phase_type="trio"
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * (4 * 2),
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -195,7 +195,7 @@ rule align_hap_specific_reads:
         mm2_params = MINIMAP2_PARAMS
     threads: 12
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -232,7 +232,7 @@ rule link_meth_tags:
         cell_hap_linked_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{cell}_{hap}_sorted-linked.bam.bai")
     threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * 2,
+        mem=calc_mem_gb,
         hrs=72,
         disk="250G"
     envmodules:
@@ -261,7 +261,7 @@ rule combine_bam_by_hap:
         merged_hap_bam_bai="results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_{hap}_sorted-linked.bam.bai",
     threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -287,7 +287,7 @@ rule merge_hap_bams:
         merged_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/{sample}/{sample}_sorted-linked.bam.bai"),
     threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",

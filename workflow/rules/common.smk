@@ -150,6 +150,14 @@ def get_reference(wildcards):
 
     return reference_path
 
+def calc_mem_gb(wildcards, input, attempt, threads):
+    mb = max(1.5 * input.size_mb, 1000)
+    gb = int(mb / 1000)
+
+    if threads != 1:
+        gb = int(max(gb / threads, 2))
+
+    return gb * attempt
 
 def get_reference_fai(wildcards):
     reference = get_reference(wildcards)

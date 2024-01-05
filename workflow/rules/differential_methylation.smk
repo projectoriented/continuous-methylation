@@ -195,7 +195,7 @@ rule dss_prepare_in_txt:
         suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     params:
         min_mod = config.get("dss_min_mod", 0)
@@ -229,7 +229,7 @@ rule dss_autosomes:
         output_prefix="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{analysis_type}/{chr}_{groupA}_vs_{groupB}"
     threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * 8,
+        mem=calc_mem_gb,
         hrs=72
     log: "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{analysis_type}/log/{chr}_{groupA}_vs_{groupB}.log"
     container:
@@ -252,7 +252,7 @@ rule dss_chrX:
         output_prefix="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{chr}/{analysis_type}/{sample}_{groupA}_vs_{groupB}"
     threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * 8,
+        mem=calc_mem_gb,
         hrs=72
     log: "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/original/{chr}/{analysis_type}/log/{sample}_{groupA}_vs_{groupB}.log"
     container:
@@ -270,7 +270,7 @@ rule softlink_chrX:
         chr="chrX"
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     shell:
         """
@@ -284,7 +284,7 @@ rule dss_overlap:
         dmr="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{chr}_{analysis_type}_DMR.tsv"
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     log: "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{chr}_{analysis_type}_DMR.log"
     run:
@@ -323,7 +323,7 @@ rule dss_summary_table_chrX:
         sample_summary_table = temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/no-intersection/tmp/{sample}_{other_sample}_{phase_type}_chrX-{analysis_type}_{dss_category}-summary.tsv")
     threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * 4,
+        mem= calc_mem_gb,
         hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
@@ -337,7 +337,7 @@ rule dss_summary_table_chrX_haplotype:
         sample_summary_table = temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/no-intersection/tmp/haplotype/{sample}_{other_sample}_{hap}_{phase_type}_chrX-{analysis_type}_{dss_category}-summary.tsv")
     threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
@@ -351,7 +351,7 @@ rule dss_summary_table:
         sample_summary_table=temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{sample}_{phase_type}_{chr}-{analysis_type}_{dss_category}-summary.tsv")
     threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
@@ -365,7 +365,7 @@ rule dss_summary_table_by_haplotype:
         sample_summary_table=temp("results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/haplotype/{sample}_{hap}_{phase_type}_{chr}-{analysis_type}_{dss_category}-summary.tsv")
     threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     script:
         "../scripts/calculate_percent_meth.py"
@@ -378,7 +378,7 @@ rule merge_dss_summary_table_by_group:
         chrom_summary_table="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/intersection/{groupA}/{chr}_{analysis_type}_{dss_category}-summary.tsv.gz"
     threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     script:
         "../scripts/merge_dss_summary_tables.py"
@@ -391,7 +391,7 @@ rule merge_dss_summary_table_by_sample:
         chrom_summary_table="results/{tech}/analysis/methylation/{ref}/dss/{group_name}/no-intersection/{sample}_chrX_{analysis_type}_{dss_category}-summary.tsv.gz"
     threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     script:
         "../scripts/merge_dss_summary_tables.py"
@@ -404,7 +404,7 @@ rule add_annotation:
         added_annotation = "results/{tech}/analysis/methylation/{ref}/dss/{group_name}/{intersect_strategy}/{prefix}_{analysis_type}_{dss_category}-annotated-summary.tsv.gz"
     threads: 1
     resources:
-        mem= lambda wildcards,attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72
     run:
         from pybedtools import BedTool

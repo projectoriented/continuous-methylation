@@ -11,7 +11,7 @@ if TECH == "ont":
             "results/ont/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}.log",
         threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * 4,
+            mem=calc_mem_gb,
             hrs=72,
         envmodules:
             "modules",
@@ -41,7 +41,7 @@ if TECH == "ont":
             suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup|unknown_cpg-pileup"
         threads: 1
         resources:
-            mem=lambda wildcards, attempt: attempt * 8,
+            mem=calc_mem_gb,
             hrs=72,
         shell:
             """
@@ -64,7 +64,7 @@ if TECH == "ont":
             suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup|unknown_cpg-pileup"
         threads: 1
         resources:
-            mem=lambda wildcards, attempt: attempt * 8,
+            mem=calc_mem_gb,
             hrs=72,
         envmodules:
             "modules",
@@ -89,7 +89,7 @@ elif TECH == "hifi":
             suffix="cpg-pileup|hap1_cpg-pileup|hap2_cpg-pileup"
         threads: 16
         resources:
-            mem=lambda wildcards, attempt: attempt * 4,
+            mem=calc_mem_gb,
             hrs=72,
         params:
             output_prefix="results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_{suffix}"

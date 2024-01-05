@@ -14,7 +14,7 @@ rule align:
         mm2_params = MINIMAP2_PARAMS
     threads: 12
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -52,7 +52,7 @@ rule link_meth_tags_non_trio:
         cell_linked_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_sorted-linked.bam.bai")
     threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * 2,
+        mem=calc_mem_gb,
         hrs=72,
         disk="250G",
     envmodules:
@@ -80,7 +80,7 @@ rule merge_align:
         merged_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_sorted-linked.bam.bai"),
     threads: 8
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -111,7 +111,7 @@ rule split_bam_by_chrom:
         ),
     threads: 4
     resources:
-        mem=lambda wildcards, attempt: attempt * 8,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -136,7 +136,7 @@ rule clair3:
         )
     threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * 2,
+        mem=calc_mem_gb,
         hrs=72,
     container:
         CLAIR3_CNTR
@@ -170,7 +170,7 @@ rule sniffles:
         trf = get_pipeline_resources(caller="sniffles", which_one="trf")
     threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -194,7 +194,7 @@ rule merge_chr_calls:
         caller="clair3|sniffles",
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * 8,
+        mem=calc_mem_gb,
         hrs=72,
     envmodules:
         "modules",
@@ -228,7 +228,7 @@ rule longphase:
         f"longphase/{LONGPHASE_VERSION}",
     threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     shell:
         """
@@ -261,7 +261,7 @@ rule haplotag:
         f"samtools/{SAMTOOLS_VERSION}",
     threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     shell:
         """
@@ -293,7 +293,7 @@ rule haplotaggedness_bam:
         f"samtools/{SAMTOOLS_VERSION}",
     threads: 16
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     shell:
         """

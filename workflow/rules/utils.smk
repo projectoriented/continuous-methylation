@@ -5,7 +5,7 @@ rule get_chrom_sizes:
         chrom_sizes="results/{tech}/{ref}/chrom.sizes"
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * 4,
+        mem=calc_mem_gb,
         hrs=72,
     shell:
         """
@@ -20,7 +20,7 @@ rule remove_vc_unwanted:
         done = temp("results/{tech}/{ref}/variant_call/clair3/{sample}/.cleaned.txt")
     threads: 1
     resources:
-        mem=lambda wildcards, attempt: attempt * 8,
+        mem=calc_mem_gb,
         hrs=72,
     shell:
         """
