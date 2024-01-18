@@ -1,8 +1,8 @@
 minimap2:
-  version: "2.24"
+  version: "2.26"
 
 sambamba:
-  version: "0.7.1"
+  version: "1.0.0"
 
 seqtk:
   version: "1.4"
@@ -14,13 +14,13 @@ yak:
   version: "0.1"
 
 hifiasm:
-  version: "0.16.1"
+  version: "0.19.8"
 
 methylink:
   version: "0.6.0"
 
 modkit:
-  version: "0.1.7"
+  version: "0.2.4"
 
 pb-CpG-tools:
   version: "2.3.1"
@@ -41,14 +41,14 @@ sniffles:
 clair3:
   guppy_model: "r941_prom_sup_g5014"
   version: "1.0.2"
-  container: "/path/to/containers/clair3/1.0.2/clair3_v1.0.2.sif"
+  container: "/net/eichler/vol28/software/containers/clair3/1.0.2/clair3_v1.0.2.sif"
 
 longphase:
   version: "1.5"
 
 dss:
   version: "2.46.0"
-  container: "/path/to/containers/R/DSS/2.46.0/bioconductor-dss_2.46.0--r42hc0cfd56_0.sif"
+  container: "/net/eichler/vol28/software/containers/R/DSS/2.46.0/bioconductor-dss_2.46.0--r42hc0cfd56_0.sif"
 
 ucsc:
   version: "202003"

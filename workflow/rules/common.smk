@@ -27,7 +27,10 @@ wildcard_constraints:
     intersect_strategy="no-intersection|intersection",
     analysis_type="two_group|model_based",
     dss_category="DMR|DML",
-    group_name="|".join(manifest_df["group_name"].unique())
+    group_name="|".join(manifest_df["group_name"].unique()),
+    cell="|".join(
+        pd.concat([pd.read_table(x,header=None,names=["file_path"]) for x in manifest_df.fofn]).reset_index(drop=True).file_path.apply(os.path.basename).str.extract(r"(.*)\.fastq.*")[0].tolist()
+    )
 
 # -------- Helper functions -------- #
 def get_final_output(wildcards):
@@ -42,83 +45,30 @@ def get_final_output(wildcards):
 
     return final_output
 
-def get_cpg_bams(wildcards):
-    if wildcards.phase_type == "trio":
-        if "hap" in wildcards.suffix:
-            current_hap = wildcards.suffix.split("_")[0]
-            return {
-                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{current_hap}_sorted-linked.bam",
-                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_{current_hap}_sorted-linked.bam.bai"
-            }
-        else:
-            return {
-                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam",
-                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/trio/{wildcards.sample}/{wildcards.sample}_sorted-linked.bam.bai"
-            }
-    elif wildcards.phase_type == "non-trio":
-        if "hap" in wildcards.suffix or "unknown" in wildcards.suffix and TECH == "ont":
-            current_hap = wildcards.suffix.split("_")[0]
-            return {
-                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_{current_hap}_haplotagged_sorted-linked.bam",
-                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_{current_hap}_haplotagged_sorted-linked.bam.bai",
-            }
-        else:
-            return {
-                "bam": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam",
-                "bai": f"results/{TECH}/{wildcards.ref}/align/phased/non-trio/longphase/{wildcards.sample}/{wildcards.sample}_haplotagged_sorted-linked.bam.bai",
-            }
-
 def get_methyl_targets():
     methyl_files = []
     for row in manifest_df.itertuples():
         if pd.notnull(row.maternal_illumina_fofn) and pd.notnull(row.paternal_illumina_fofn):
             phase_type = "trio"
-            if TECH == "ont":
-                methyl_files.extend(
-                    [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.{ext}"
-                        for hap in HAPS for ext in ["bed.gz", "bw"]
-                    ],
-                )
-                methyl_files.extend(
-                    [f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.{ext}" for ext in ["bed.gz", "bw"]]
-                )
-            elif TECH == "hifi":
-                methyl_files.extend(
-                    [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.combined.{ext}"
-                        for hap in HAPS for ext in ["bed.gz", "bw"]
-                    ]
-                )
-                methyl_files.extend(
-                    [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.combined.{ext}" for ext in ["bed.gz", "bw"]
-                    ]
-                )
         else:
             phase_type = "non-trio"
-            if TECH == "ont":
-                methyl_files.extend(
-                    [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_{hap}_cpg-pileup.{ext}"
-                        for hap in HAPS+["unknown"] for ext in ["bed.gz", "bw"]
-                    ],
-                )
 
-                methyl_files.extend(
-                    [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.{ext}"
-                        for ext in ["bed.gz", "bw"]
-                    ]
-
-                )
-            elif TECH == "hifi":
-                methyl_files.extend(
-                    [
-                        f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.combined.{ext}"
-                        for ext in ["bed.gz", "bw"]
-                    ]
-                )
+        if TECH == "ont":
+            methyl_files.extend(
+                [
+                    f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup_{suffix}.{ext}"
+                    for suffix in ["combined", "unknown"] + HAPS for ext in ["bed.gz", "bw"]
+                ],
+            )
+        elif TECH == "hifi":
+            methyl_files.extend(
+                [
+                    f"results/{TECH}/{row.reference_name}/methylation/phased/{phase_type}/{row.sample}/{row.sample}_cpg-pileup.{suffix}.{ext}"
+                    for suffix in ["combined"] + HAPS for ext in ["bed.gz", "bw"]
+                ]
+            )
+        else:
+            raise ValueError(f"Unaccounted for {row}")
 
     return methyl_files
 
@@ -223,22 +173,51 @@ def get_fofn_df(which_one, sample_name, ref_name):
     fofn_df.set_index(["cell"],inplace=True)
     return fofn_df
 
-def get_tech_files(which_one):
+def get_5mC_bams(wildcards):
+    if wildcards.phase_type == "trio":
+        phase_type = "trio"
+        aligner = "minimap2"
+    else:
+        phase_type = "non-trio"
+        aligner = "longphase"
+
+    return {
+        "bam": f"results/{TECH}/{wildcards.ref}/align/phased/{phase_type}/{aligner}/{wildcards.sample}/{wildcards.sample}_sorted-5mC-haplotagged.bam",
+        "bai": f"results/{TECH}/{wildcards.ref}/align/phased/{phase_type}/{aligner}/{wildcards.sample}/{wildcards.sample}_sorted-5mC-haplotagged.bam.bai"
+    }
+
+def get_unmapped_bam(wildcards):
+    fofn_df = get_fofn_df(which_one="unmapped_bam_fofn",sample_name=wildcards.sample,ref_name=wildcards.ref)
+
+    return fofn_df.at[wildcards.cell, "file_path"]
+
+def get_fastq(which_one):
     def inner(wildcards):
-        fofn_df = get_fofn_df(which_one=which_one, sample_name=wildcards.sample, ref_name=wildcards.ref)
-        return fofn_df.at[wildcards.cell, "file_path"]
+        fofn_df = get_fofn_df(which_one="fofn",sample_name=wildcards.sample,ref_name=wildcards.ref)
+        if which_one == "correspond_reads":
+            return fofn_df.at[wildcards.cell, "file_path"]
+        else:
+            if wildcards.phase_type == "trio":
+                binned_type = wildcards.suffix.split("_")[0]
+                return f"results/{{tech}}/{{ref}}/align/phased/trio/{{sample}}/fastq/{{sample}}_{binned_type}_{{cell}}.fastq.gz"
+            else:
+                return fofn_df.at[wildcards.cell, "file_path"]
     return inner
 
-def gather_tech_bams(which_one):
-    def inner(wildcards):
-        # Just get cell/movie names- so either fofn or unmapped_bam_fofn works.
-        fofn_df = get_fofn_df(which_one="unmapped_bam_fofn",sample_name=wildcards.sample,ref_name=wildcards.ref)
-        if which_one == "hap_specific":
-            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/{{sample}}/{{sample}}_{cell}_{{hap}}_sorted-linked.bam",cell=fofn_df.index.tolist(), tech=[TECH])
-        elif which_one == "not_hap_specific":
-            return expand("results/{tech}/{{ref}}/align/phased/{{phase_type}}/minimap2/{{sample}}/{{sample}}_{cell}_sorted-linked.bam",cell=fofn_df.index.tolist(), tech=[TECH])
-    return inner
+def gather_tech_bams(wildcards):
+    # Just get cell/movie names- so either fofn or unmapped_bam_fofn works
+    fofn_df = get_fofn_df(which_one="unmapped_bam_fofn",sample_name=wildcards.sample,ref_name=wildcards.ref)
 
+    if wildcards.phase_type == "trio":
+        actual_suffix = ["hap1_sorted-5mC-haplotagged", "hap2_sorted-5mC-haplotagged", "non-binnable_sorted-5mC"]
+    else:
+        actual_suffix = "sorted-5mC"
+
+    return expand(
+        "results/{tech}/{{ref}}/align/phased/{{phase_type}}/minimap2/{{sample}}/{{sample}}_{cell}_{actual_suffix}.bam",
+        cell=fofn_df.index.tolist(), tech=[TECH],
+        actual_suffix=actual_suffix
+    )
 
 def get_by_chrom(wildcards):
     reference_fai = get_reference_fai(wildcards)
