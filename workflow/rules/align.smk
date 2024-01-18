@@ -1,4 +1,3 @@
-# cell=lambda wildcards: "|".join(get_cell_constraints)
 rule align:
     input:
         fastq=get_fastq(which_one="other"),

@@ -27,3 +27,4 @@ rule all:
 
 onsuccess:
     shell("find . -type d -name '0-kmers' | xargs rm -rf")
+    shell("find results/*/*/align/phased/non-trio/minimap2 -type f -name '*sorted-5mC.bam*' | xargs dirname | xargs dirname | xargs rm -rf")
