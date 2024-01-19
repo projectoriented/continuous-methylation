@@ -10,7 +10,8 @@ rule align:
             "results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_{suffix}.bam.bai"
         ),
     wildcard_constraints:
-        suffix="hap1_sorted|hap2_sorted|non-binnable_sorted|sorted"
+        suffix="hap1_sorted|hap2_sorted|non-binnable_sorted|sorted",
+        cell="|".join(get_all_cell_names())
     params:
         tech_arg=lambda wildcards: f"map-{wildcards.tech}",
         mm2_params=MINIMAP2_PARAMS
@@ -64,7 +65,8 @@ rule link_meth_tags:
         linked_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_{suffix}-5mC.bam"),
         linked_bam_bai=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_{suffix}-5mC.bam.bai"),
     wildcard_constraints:
-        suffix="hap1_sorted|hap2_sorted|non-binnable_sorted|sorted"
+        suffix="hap1_sorted|hap2_sorted|non-binnable_sorted|sorted",
+        cell="|".join(get_all_cell_names())
     threads: 16
     resources:
         mem=calc_mem_gb,
@@ -94,7 +96,8 @@ rule haplotag_trio:
     output:
         haplotagged_bam=temp("results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_{cell}_{suffix}-5mC-haplotagged.bam"),
     wildcard_constraints:
-        suffix="hap1_sorted|hap2_sorted|non-binnable_sorted|sorted"
+        suffix="hap1_sorted|hap2_sorted|non-binnable_sorted|sorted",
+        cell="|".join(get_all_cell_names())
     threads: 1
     resources:
         mem=calc_mem_gb,

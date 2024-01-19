@@ -27,10 +27,7 @@ wildcard_constraints:
     intersect_strategy="no-intersection|intersection",
     analysis_type="two_group|model_based",
     dss_category="DMR|DML",
-    group_name="|".join(manifest_df["group_name"].unique()),
-    cell="|".join(
-        pd.concat([pd.read_table(x,header=None,names=["file_path"]) for x in manifest_df.fofn]).reset_index(drop=True).file_path.apply(os.path.basename).str.extract(r"(.*)\.fastq.*")[0].tolist()
-    )
+    group_name="|".join(manifest_df["group_name"].unique())
 
 # -------- Helper functions -------- #
 def get_final_output(wildcards):
@@ -150,6 +147,16 @@ def get_parental_yak(wildcards):
         "mat": f"results/hifi/yak/parents/{family}/mat.yak",
         "pat": f"results/hifi/yak/parents/{family}/pat.yak",
     }
+
+def get_all_cell_names():
+    all_cell_names = []
+    sample_list = manifest_df["sample"].tolist()
+    ref_name = manifest_df["reference_name"].tolist()
+
+    for x, r in zip(sample_list,ref_name):
+        all_cell_names.extend(get_fofn_df(which_one="fofn",sample_name=x,ref_name=ref_name).index.tolist())
+
+    return all_cell_names
 
 def get_fofn_df(which_one, sample_name, ref_name):
     fp = manifest_df.loc[

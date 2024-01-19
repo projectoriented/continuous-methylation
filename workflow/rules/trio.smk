@@ -187,6 +187,8 @@ rule correspond_reads:
         fastq=temp(
             "results/{tech}/{ref}/align/phased/trio/{sample}/fastq/{sample}_{suffix}_{cell}.fastq.gz"
         ),
+    wildcard_constraints:
+        cell="|".join(get_all_cell_names())
     threads: 1
     resources:
         mem=calc_mem_gb,
