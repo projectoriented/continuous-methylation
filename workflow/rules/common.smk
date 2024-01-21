@@ -113,11 +113,11 @@ def get_reference_fai(wildcards):
 def get_assembly_trio_inputs(which_one):
     def inner(wildcards):
         if which_one == "fastq":
-            return manifest_df.loc[manifest_df["sample"] == wildcards.sample, "fofn"][0]
+            return manifest_df.loc[manifest_df["sample"] == wildcards.sample, "fofn"].values[0]
         elif which_one == "parental_illumina":
             return {
-                "pat": manifest_df.loc[manifest_df["sample"] == wildcards.sample, "paternal_illumina_fofn"][0],
-                "mat": manifest_df.loc[manifest_df["sample"] == wildcards.sample, "maternal_illumina_fofn"][0]
+                "pat": manifest_df.loc[manifest_df["sample"] == wildcards.sample, "paternal_illumina_fofn"].values[0],
+                "mat": manifest_df.loc[manifest_df["sample"] == wildcards.sample, "maternal_illumina_fofn"].values[0]
             }
         else:
             sys.exit(f"Unsupported param in get_assembly_trio_inputs: {which_one}")
@@ -160,7 +160,7 @@ def get_all_cell_names():
 
 def get_fofn_df(which_one, sample_name, ref_name):
     fp = manifest_df.loc[
-        (manifest_df["sample"] == sample_name) & (manifest_df["reference_name"] == ref_name), which_one][0]
+        (manifest_df["sample"] == sample_name) & (manifest_df["reference_name"] == ref_name), which_one].values[0]
     fofn_df = pd.read_table(fp,header=None,names=["file_path"])
     fofn_df["basename"] = fofn_df.apply(
         lambda row: os.path.basename(row.file_path),axis=1
