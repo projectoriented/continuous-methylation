@@ -124,7 +124,6 @@ rule merge_align:
         bams=gather_tech_bams,
     output:
         bam="results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_sorted-{suffix}.bam",
-        bam_bai="results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_sorted-{suffix}.bam.bai",
     wildcard_constraints:
         suffix="5mC-haplotagged|5mC"
     threads: 8
@@ -140,8 +139,30 @@ rule merge_align:
     shell:
         """
         if [[ $( echo "{input.bams}" | tr ' ' '\\n' | wc -l ) -eq 1 ]]; then
-            mv {input.bams} {output.bam} && sambamba index --nthreads {threads} {output.bam}
+            mv {input.bams} {output.bam}
         else
-            sambamba merge --nthreads {threads} {output.bam} {input.bams} && sambamba index --nthreads {threads} {output.bam}
+            sambamba merge --nthreads {threads} {output.bam} {input.bams}
         fi
+        """
+
+rule index_merge_align:
+    input:
+        bam="results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_sorted-{suffix}.bam",
+    output:
+        bam_csi="results/{tech}/{ref}/align/phased/{phase_type}/minimap2/{sample}/{sample}_sorted-{suffix}.bam.csi",
+    wildcard_constraints:
+        suffix="5mC-haplotagged|5mC"
+    threads: 8
+    resources:
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
+    envmodules:
+        "modules",
+        "modules-init",
+        "modules-gs/prod",
+        "modules-eichler/prod",
+        f"samtools/{SAMTOOLS_VERSION}"
+    shell:
+        """
+        samtools index -c -@ {threads} {input.bam}
         """

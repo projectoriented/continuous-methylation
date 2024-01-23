@@ -1,7 +1,7 @@
 rule split_bam_by_chrom:
     input:
         bam="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam",
-        bai="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam.bai",
+        csi="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam.csi",
     output:
         chr_bam=temp(
             "results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC-{chr}.bam"
@@ -11,7 +11,7 @@ rule split_bam_by_chrom:
         ),
     threads: 4
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 8,
         hrs=72,
     envmodules:
         "modules",
@@ -112,7 +112,7 @@ rule longphase:
     input:
         snv_vcf="results/{tech}/{ref}/variant_call/clair3/{sample}/{sample}_clair3.vcf.gz",
         bam="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam",
-        bai="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam.bai",
+        csi="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam.csi",
         sv_vcf="results/{tech}/{ref}/variant_call/sniffles/{sample}/{sample}_sniffles.vcf.gz",
         ref=get_reference,
     output:
@@ -148,20 +148,18 @@ rule haplotag:
         snp_vcf=rules.longphase.output.phased_snp_vcf,
         sv_vcf=rules.longphase.output.phased_sv_vcf,
         bam="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam",
-        bam_bai="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam.bai",
+        bam_csi="results/{tech}/{ref}/align/phased/non-trio/minimap2/{sample}/{sample}_sorted-5mC.bam.csi",
     output:
         haplotagged_bam="results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_sorted-5mC-haplotagged.bam",
-        haplotagged_bam_bai="results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_sorted-5mC-haplotagged.bam.bai",
     envmodules:
         "modules",
         "modules-init",
         "modules-gs/prod",
         "modules-eichler/prod",
         f"longphase/{LONGPHASE_VERSION}",
-        f"samtools/{SAMTOOLS_VERSION}",
     threads: 16
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 4,
         hrs=72,
     shell:
         """
@@ -170,8 +168,27 @@ rule haplotag:
             --sv-file {input.sv_vcf} \
             -b {input.bam} \
             -t {threads} \
-            --out-prefix $( echo {output.haplotagged_bam} | sed 's/\.bam//' ) \
-        && samtools index -@ {threads} {output.haplotagged_bam}
+            --out-prefix $( echo {output.haplotagged_bam} | sed 's/\.bam//' )
+        """
+
+rule index_haplotag:
+    input:
+        haplotagged_bam="results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_sorted-5mC-haplotagged.bam",
+    output:
+        haplotagged_bam_csi="results/{tech}/{ref}/align/phased/non-trio/longphase/{sample}/{sample}_sorted-5mC-haplotagged.bam.csi",
+    envmodules:
+        "modules",
+        "modules-init",
+        "modules-gs/prod",
+        "modules-eichler/prod",
+        f"samtools/{SAMTOOLS_VERSION}",
+    threads: 16
+    resources:
+        mem=lambda wildcards, attempt: attempt * 4,
+        hrs=72,
+    shell:
+        """
+        samtools index -c -@ {threads} {input.haplotagged_bam}
         """
 
 # rule haplotaggedness_bam:

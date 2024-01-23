@@ -190,7 +190,7 @@ def get_5mC_bams(wildcards):
 
     return {
         "bam": f"results/{TECH}/{wildcards.ref}/align/phased/{phase_type}/{aligner}/{wildcards.sample}/{wildcards.sample}_sorted-5mC-haplotagged.bam",
-        "bai": f"results/{TECH}/{wildcards.ref}/align/phased/{phase_type}/{aligner}/{wildcards.sample}/{wildcards.sample}_sorted-5mC-haplotagged.bam.bai"
+        "csi": f"results/{TECH}/{wildcards.ref}/align/phased/{phase_type}/{aligner}/{wildcards.sample}/{wildcards.sample}_sorted-5mC-haplotagged.bam.csi"
     }
 
 def get_unmapped_bam(wildcards):
