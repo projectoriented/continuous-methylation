@@ -129,7 +129,7 @@ rule merge_align:
         suffix="5mC-haplotagged|5mC"
     threads: 8
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 4,
         hrs=72,
     envmodules:
         "modules",
