@@ -116,10 +116,10 @@ elif TECH == "hifi":
             unpack(get_5mC_bams),
             ref=get_reference
         output:
-            methyl_out = expand("results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_cpg-pileup.{out_type}.{out_ext}", out_type=["combined", "hap1", "hap2"], out_ext=["bed.gz", "bw"])
+            methyl_out = expand("results/hifi/{{ref}}/methylation/phased/{{phase_type}}/{{sample}}/{{sample}}_cpg-pileup.{out_type}.{out_ext}", out_type=["combined", "hap1", "hap2"], out_ext=["bed.gz", "bw"])
         threads: 16
         resources:
-            mem=calc_mem_gb,
+            mem=lambda wildcards, attempt: attempt * 4,
             hrs=72,
         params:
             output_prefix="results/hifi/{ref}/methylation/phased/{phase_type}/{sample}/{sample}_cpg-pileup"

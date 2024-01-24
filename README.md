@@ -2,7 +2,7 @@
 
 A bioinformatics pipeline to get methylation calls (in bed format) for phased alignments using long-read sequencing (third-gen) data.
 
-This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments using a phased assembly if parental illuminas are available, 2) generate phased alignments using heterozygous SNVs + SVs and will output a single bam that you can query using "HP:i:1 or HP:i:2 or ![HP]", 3) [only for autism cohort] perform differential methylation.
+This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments using a phased assembly if parental illuminas are available, 2) generate phased alignments using heterozygous SNVs + SVs and will output a single bam that you can query using "HP:i:1 or HP:i:2 or ![HP]" to get the phased reads.
 
 ## Getting started
 1. Clone the repo
@@ -44,10 +44,15 @@ This pipeline accepts only hifi OR ont, and it can 1) generate phased alignments
    # HiFi
    ./runsnake 30 --config tech=hifi manifest=config/manifest-hifi.tab (for dry run: put -np)
    ```
-3. Where can I get the singularity containers?
+3. How do I know if I have methylation tags in my unmapped bam? Assuming you have samtools installed:
+```shell
+samtools view -e '[MM]' your_bam_here.bam
+```
+4. Where can I get the singularity containers?
    1. Answer coming soon. I'm going to build a barebone container that is enough to run the pipeline, as well as adding a conda statement for all the rules so it can be fine tuned on the versioning.
-4. What is an example config and manifest?
+5. What is an example config and manifest?
    1. Answer coming soon.
 
 ## Overview
-![pipeline vector](https://github.com/projectoriented/continuous-methylation/blob/main/agg-dag.svg)
+[DAG for HiFi](dag-hifi.svg)
+[DAG for ONT](dag-ont.svg)
