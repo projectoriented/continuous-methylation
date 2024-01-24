@@ -135,13 +135,13 @@ rule merge_align:
         "modules-init",
         "modules-gs/prod",
         "modules-eichler/prod",
-        f"sambamba/{SAMBAMBA_VERSION}",
+        f"samtools/{SAMTOOLS_VERSION}"
     shell:
         """
         if [[ $( echo "{input.bams}" | tr ' ' '\\n' | wc -l ) -eq 1 ]]; then
             mv {input.bams} {output.bam}
         else
-            sambamba merge --nthreads {threads} {output.bam} {input.bams}
+            samtools merge -fr -@ {threads} -o {output.bam} {input.bams} 
         fi
         """
 

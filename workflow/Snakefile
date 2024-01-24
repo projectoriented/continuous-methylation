@@ -18,9 +18,6 @@ include: "rules/non_trio.smk"
 include: "rules/utils.smk"
 include: "rules/align.smk"
 
-if methylation_analysis:
-    include: "rules/differential_methylation.smk"
-
 # ----------- Target ----------- #
 rule all:
     input: get_final_output

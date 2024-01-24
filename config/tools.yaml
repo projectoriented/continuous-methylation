@@ -46,9 +46,5 @@ clair3:
 longphase:
   version: "1.5"
 
-dss:
-  version: "2.46.0"
-  container: "/net/eichler/vol28/software/containers/R/DSS/2.46.0/bioconductor-dss_2.46.0--r42hc0cfd56_0.sif"
-
 ucsc:
   version: "202003"

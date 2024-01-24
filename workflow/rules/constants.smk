@@ -23,4 +23,3 @@ UCSC_VERSION = config["ucsc"]["version"]
 
 # --------  Constants: CONTAINERS -------- #
 CLAIR3_CNTR = config["clair3"]["container"]
-DSS_CNTR = config["dss"]["container"]
