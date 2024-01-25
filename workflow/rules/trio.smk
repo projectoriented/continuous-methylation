@@ -48,7 +48,7 @@ if config["tech"] == "ont":
             unknown_hap= "results/ont/assemblies/canu/trio/{sample}/haplotype/{sample}_unknown.fasta.gz"
         threads: 1
         resources:
-            mem=calc_mem_gb,
+            mem=1,
             hrs=72,
         shell:
             """
@@ -89,7 +89,7 @@ elif config["tech"] == "hifi":
             asm_hap2=temp("results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.bp.hap2.p_ctg.gfa")
         threads: 16
         resources:
-            mem=calc_mem_gb,
+            mem=lambda wildcards, attempt: attempt * 6,
             hrs=72,
         log:
             "results/hifi/assemblies/hifiasm/trio/{sample}-primary.log"
@@ -118,7 +118,7 @@ elif config["tech"] == "hifi":
             asm_all="results/hifi/assemblies/hifiasm/trio/{sample}.hifiasm.dip.r_utg.noseq.gfa",
         threads: 16
         resources:
-            mem=calc_mem_gb,
+            mem=lambda wildcards, attempt: attempt * 4,
             hrs=72,
         log:
             "results/hifi/assemblies/hifiasm/trio/{sample}-trio.log"

@@ -36,7 +36,7 @@ rule clair3:
         )
     threads: 16
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 4,
         hrs=72,
     container:
         CLAIR3_CNTR
@@ -70,7 +70,7 @@ rule sniffles:
         trf = get_pipeline_resources(caller="sniffles", which_one="trf")
     threads: 16
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 4,
         hrs=72,
     envmodules:
         "modules",
@@ -128,7 +128,7 @@ rule longphase:
         f"longphase/{LONGPHASE_VERSION}",
     threads: 16
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 4,
         hrs=72,
     shell:
         """

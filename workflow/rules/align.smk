@@ -17,7 +17,7 @@ rule align:
         mm2_params=MINIMAP2_PARAMS
     threads: 12
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 4,
         hrs=72,
     envmodules:
         "modules",
@@ -69,7 +69,7 @@ rule link_meth_tags:
         cell="|".join(get_all_cell_names())
     threads: 16
     resources:
-        mem=calc_mem_gb,
+        mem=lambda wildcards, attempt: attempt * 2,
         hrs=72,
         disk="250G"
     envmodules:
