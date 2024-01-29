@@ -142,6 +142,6 @@ elif TECH == "hifi":
             
             for suffix in combined hap1 hap2
             do
-                gzip {params.output_prefix}.${{suffix}}
+                gzip {params.output_prefix}.${{suffix}}.bed
             done 
             """

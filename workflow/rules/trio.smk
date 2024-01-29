@@ -64,7 +64,7 @@ elif config["tech"] == "hifi":
             parental_yak=temp("results/hifi/yak/parents/{family}/{parental}.yak"),
         threads: 8
         resources:
-            mem=calc_mem_gb,
+            mem=lambda wildcards, attempt, input: attempt * 10,
             hrs=72,
         envmodules:
             "modules",
